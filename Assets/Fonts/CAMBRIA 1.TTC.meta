@@ -1,0 +1,25 @@
+fileFormatVersion: 2
+guid: 2a04301ed22c7ac409653a121222c0e7
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - Cambria
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 7261d259a0bc22c4995d325ae1541eb0, type: 3}
+  - {fileID: 12800000, guid: 4022e737fc17a3644afa74f611bcb705, type: 3}
+  - {fileID: 12800000, guid: 06ab08428eb1ba649ad687ac5dc66ca3, type: 3}
+  - {fileID: 12800000, guid: 1430809e62b96614ebe0f41f09c7bdfb, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

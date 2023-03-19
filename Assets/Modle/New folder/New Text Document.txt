@@ -1,0 +1,14 @@
+version 3ds max  : 2015
+
+polys : 21000
+
+x-form : yes
+
+obj - mtl files
+
+fbx file
+
+render file
+
+textures file
+
