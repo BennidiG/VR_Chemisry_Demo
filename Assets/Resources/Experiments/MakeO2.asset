@@ -1,0 +1,151 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f24b1f1b7f34a0e9c0de54a6c510001, type: 3}
+  m_Name: MakeO2
+  m_EditorClassIdentifier: 
+  projectNumber: 1
+  experimentId: make_o2
+  chineseName: 制取氧气实验
+  englishName: Oxygen Preparation
+  chineseDescription: 装配器材并加热药品，使用排水法收集氧气。
+  englishDescription: Assemble the apparatus, heat the reagent and collect oxygen over water.
+  requiredEquipment: 0100000002000000030000000b0000000900000005000000060000000700000008000000
+  steps:
+  - stepId: take_reagent
+    chineseTitle: 步骤一：取少量药品到药勺中
+    englishTitle: 'Step 1: Place a small amount of reagent on the spoon'
+    chineseInstruction: 用药勺从药瓶中取少量药品，高亮物体会提示当前需要操作的器材。
+    englishInstruction: Use the spoon to take a small amount of reagent from the bottle. Highlighted items indicate the current target.
+    chineseSafetyNote: 不要直接用手接触药品，取用量不宜过多。
+    englishSafetyNote: Do not touch the reagent with bare hands and do not take too much.
+    scoreWeight: 5
+    highlightItems: 0200000003000000
+  - stepId: add_to_test_tube
+    chineseTitle: 步骤二：将药勺中的药品放入试管
+    englishTitle: 'Step 2: Transfer the reagent into a test tube'
+    chineseInstruction: 将药勺中的药品倒入试管，注意不要让药品洒出。
+    englishInstruction: Transfer the reagent from the spoon into the test tube without spilling it.
+    chineseSafetyNote: 试管应保持稳定，避免药品落到底部以外。
+    englishSafetyNote: Keep the test tube steady and guide the reagent to the bottom.
+    scoreWeight: 5
+    highlightItems: 0200000005000000
+  - stepId: attach_cork
+    chineseTitle: 步骤三：将试管和塞子连接
+    englishTitle: 'Step 3: Fit the cork into the test tube'
+    chineseInstruction: 将塞子安装到试管口，连接应密封但不要用蛮力。
+    englishInstruction: Fit the cork into the test tube mouth. It should be secure without excessive force.
+    chineseSafetyNote: 不要强行挤压玻璃器皿，以免破裂。
+    englishSafetyNote: Do not force glassware together because it may break.
+    scoreWeight: 5
+    highlightItems: 050000000d000000
+  - stepId: connect_catheter
+    chineseTitle: 步骤四：将试管口和导管连接
+    englishTitle: 'Step 4: Connect the delivery tube'
+    chineseInstruction: 将导管与塞子接口连接，检查气路是否畅通。
+    englishInstruction: Connect the delivery tube to the cork and check that the gas path is clear.
+    chineseSafetyNote: 加热前必须检查装置连接，避免漏气或堵塞。
+    englishSafetyNote: Check all connections before heating to prevent leaks or blockage.
+    scoreWeight: 5
+    highlightItems: 0d00000008000000
+  - stepId: secure_test_tube
+    chineseTitle: 步骤五：将装配好的试管固定在架子上
+    englishTitle: 'Step 5: Secure the assembled test tube'
+    chineseInstruction: 使用试管夹和支架固定试管，保持合适的加热位置。
+    englishInstruction: Use the clamp and stand to secure the assembled test tube at a suitable heating position.
+    chineseSafetyNote: 试管口不要朝向自己或他人。
+    englishSafetyNote: Never point the test tube mouth at yourself or anyone else.
+    scoreWeight: 5
+    highlightItems: 0600000005000000
+  - stepId: heat_test_tube
+    chineseTitle: 步骤六：用酒精灯加热试管底部
+    englishTitle: 'Step 6: Heat the bottom of the test tube'
+    chineseInstruction: 用火柴点燃酒精灯，将试管底部放在火焰处加热，观察气泡。
+    englishInstruction: Light the alcohol lamp with a match and heat the bottom of the test tube. Watch for bubbles.
+    chineseSafetyNote: 酒精灯保持直立；熄灭时用灯帽盖灭，不要用嘴吹。
+    englishSafetyNote: Keep the alcohol lamp upright. Extinguish it with the cap, never by blowing.
+    scoreWeight: 5
+    highlightItems: 090000000100000005000000
+  - stepId: collect_oxygen
+    chineseTitle: 步骤七：将集气瓶放在导管出口收集氧气
+    englishTitle: 'Step 7: Collect oxygen at the delivery tube outlet'
+    chineseInstruction: 将集气瓶放在导管出口，持续产生氧气后即可完成收集。
+    englishInstruction: Place the collection bottle at the delivery tube outlet. Collection completes when oxygen is produced.
+    chineseSafetyNote: 先观察气泡是否连续，再开始收集；结束后按正确顺序拆卸装置。
+    englishSafetyNote: Start collection when bubbles are continuous and dismantle in the correct order afterward.
+    scoreWeight: 5
+    highlightItems: 0b00000008000000
+  cleanupCriteria:
+  - cleanupId: all_test_tubes
+    itemType: 14
+    chineseName: 试管架及全部试管
+    englishName: Test tube rack and all tubes
+    scoreWeight: 1
+  - cleanupId: spoon
+    itemType: 2
+    chineseName: 药勺
+    englishName: Spoon
+    scoreWeight: 1
+  - cleanupId: drug_bottle
+    itemType: 3
+    chineseName: 药瓶
+    englishName: Reagent bottle
+    scoreWeight: 1
+  - cleanupId: drug_bottle_cap
+    itemType: 4
+    chineseName: 药瓶盖
+    englishName: Reagent bottle cap
+    scoreWeight: 1
+  - cleanupId: tube_clamp
+    itemType: 6
+    chineseName: 试管夹
+    englishName: Test tube clamp
+    scoreWeight: 1
+  - cleanupId: basin
+    itemType: 7
+    chineseName: 水盆
+    englishName: Water basin
+    scoreWeight: 1
+  - cleanupId: catheter
+    itemType: 8
+    chineseName: 导管
+    englishName: Delivery tube
+    scoreWeight: 1
+  - cleanupId: match_destroyed
+    itemType: 1
+    chineseName: 废弃火柴已回收
+    englishName: Used match disposed
+    scoreWeight: 1
+  - cleanupId: alcohol_lamp
+    itemType: 9
+    chineseName: 酒精灯
+    englishName: Alcohol lamp
+    scoreWeight: 1
+  - cleanupId: alcohol_lamp_cap
+    itemType: 10
+    chineseName: 酒精灯帽
+    englishName: Alcohol lamp cap
+    scoreWeight: 1
+  - cleanupId: glass_bottle
+    itemType: 11
+    chineseName: 氧气瓶
+    englishName: Oxygen bottle
+    scoreWeight: 1
+  - cleanupId: glass_bottle_cap
+    itemType: 12
+    chineseName: 氧气瓶盖
+    englishName: Oxygen bottle cap
+    scoreWeight: 1
+  - cleanupId: cork
+    itemType: 13
+    chineseName: 塞子
+    englishName: Cork
+    scoreWeight: 1

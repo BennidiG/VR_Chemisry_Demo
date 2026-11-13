@@ -1,85 +1,65 @@
-using System.Collections;
-using System.Collections.Generic;
 using System;
 using UnityEngine;
-using Random = System.Random;
 using UnityEngine.VFX;
 using TMPro;
 
 public class VisualEffectGraph : MonoBehaviour
 {
-    VisualEffect Fire;
-    VisualEffect ReFire;
-    VisualEffect Smoke;
+    private const float MaxOxygen = 10000F;
+    private const float OxygenPerSecond = 60F;
+    private const float NormalBurnRate = 0.006F;
+    private const float ReFireBurnRate = 0.012F;
 
-    VFXEventAttribute eventAttribute;
+    private VisualEffect Fire;
+    private VisualEffect ReFire;
+    private VisualEffect Smoke;
     private GameObject MatchHead;
     private GameObject Mars;
     private GameObject MHead;
-    private GameObject stick;
     private GameObject StickTirgger;
     private GameObject DisslpateBody;
-    private GameObject Match;
-    private Collider Stick_ContainerCollider;
+    private BoxCollider Stick_ContainerCollider;
+    private Rigidbody matchBody;
+    private Renderer marsRenderer;
+    private Renderer dissolveBodyRenderer;
+    private MeshRenderer My_RDisslpate;
+    private MaterialPropertyBlock dissolveProperties;
 
+    private TMP_Text responseText;
+    private TMP_Text promptText;
+    private TMP_Text oxygenText;
+    private TMP_Text Match_ReFire_Step2;
+    private TMP_Text Match_ReFire_Step3;
+    private Score Match_ReFire_Score;
+    private OxygenSupply oxygenSupply;
+    private ExperimentRunner runner;
 
-    MeshRenderer My_RStick;
-    MeshRenderer My_RDisslpate;
+    private int Can_refire;
+    private int Is_fire;
+    private int Is_refire;
+    private int Flag;
+    private bool DissAdd;
+    private bool DestroyDiss;
 
-    private GameObject T1;
-    private GameObject T2;
-    private GameObject T3;
-    private GameObject Match_ReFire_Step2;
-    private GameObject Match_ReFire_Step3;
-    //private GameObject Text_Hints;
-
-    private Rigidbody STP;
-
-    private static int Can_refire;
-    private static int Is_fire;
-    private static int Is_refire;
-    private static int Flag;
-    private static bool DissAdd;
-    private static bool DestroyDiss;
-
-    private static float aliveParticleCount;
-    private static float O2ParticleCount;
-    private static float MatchLength;
-    private float Y;
+    private float aliveParticleCount;
+    private float O2ParticleCount;
     private float Off;
-    private static float Dissposition;
-
-
-    CreateMatch IF_CreateMatch = new CreateMatch();
-    Score Match_ReFire_Score = new Score();
-    private void Awake()
-    {
-        //InvokeRepeating("Disslpate", 0, (float)2);
-    }
+    private float Dissposition;
+    private readonly System.Random random = new System.Random();
 
     void Start()
     {
-        Match = GameObject.Find("Match");
-        MatchHead = GameObject.Find("MatchHead");
-        Mars = GameObject.Find("Mars");
-        MHead = GameObject.Find("MHead");
-        stick = GameObject.Find("stick");
-        StickTirgger = GameObject.Find("StickTirgger");
-        STP = GameObject.Find("Match").GetComponent<Rigidbody>();
-        My_RStick = GameObject.Find("stick").GetComponent<MeshRenderer>();
-        DisslpateBody = GameObject.Find("DisslpateBody");
-        My_RDisslpate = GameObject.Find("Disslpate").GetComponent<MeshRenderer>();
-        Fire = GameObject.Find("Fire").GetComponent<VisualEffect>();
-        ReFire = GameObject.Find("ReFire").GetComponent<VisualEffect>();
-        Smoke = GameObject.Find("Smoke").GetComponent<VisualEffect>();
-        Stick_ContainerCollider = GameObject.Find("stick").GetComponent<BoxCollider>();
-
-        T1 = GameObject.Find("ResponseRatio");
-        T2 = GameObject.Find("Prompt");
-        T3 = GameObject.Find("ParticleCount");
-        Match_ReFire_Step2 = GameObject.Find("Match_ReFire_Step2");
-        Match_ReFire_Step3 = GameObject.Find("Match_ReFire_Step3");
-        //Text_Hints = GameObject.Find("Hints");
+        Match_ReFire_Score = FindObjectOfType<Score>();
+        oxygenSupply = FindObjectOfType<OxygenSupply>();
+        if (oxygenSupply != null)
+        {
+            O2ParticleCount = oxygenSupply.Amount;
+            oxygenSupply.AmountChanged += OnOxygenAmountChanged;
+        }
+        runner = ExperimentRunner.GetOrCreate();
+        runner.ExperimentReset += OnExperimentReset;
+        BindMatchObjects();
+        BindUserInterface();
 
         Can_refire = 0;
         Is_refire = 0;
@@ -87,248 +67,263 @@ public class VisualEffectGraph : MonoBehaviour
         Flag = 0;
         DissAdd = false;
         DestroyDiss = false;
-
         aliveParticleCount = 0;
-        O2ParticleCount = 0;
-
-        Y = 0.2F;
+        O2ParticleCount = oxygenSupply != null ? oxygenSupply.Amount : 0F;
         Off = 0.500001F;
         Dissposition = 0.600001F;
 
         Fire.Stop();
         ReFire.Stop();
         Smoke.Stop();
+        marsRenderer.enabled = false;
+        dissolveBodyRenderer.enabled = false;
+        My_RDisslpate.enabled = false;
+    }
 
-        Mars.GetComponent<Renderer>().enabled = false;
-        DisslpateBody.GetComponent<Renderer>().enabled = false;
-        My_RDisslpate.GetComponent<Renderer>().enabled = false;
+    private void BindMatchObjects()
+    {
+        MatchHead = transform.Find("MatchHead").gameObject;
+        Mars = transform.Find("Mars").gameObject;
+        MHead = transform.Find("MHead").gameObject;
+        StickTirgger = transform.Find("StickTirgger").gameObject;
+        DisslpateBody = transform.Find("DisslpateBody").gameObject;
+
+        Transform stick = transform.Find("stick");
+        Stick_ContainerCollider = stick.GetComponent<BoxCollider>();
+        matchBody = GetComponent<Rigidbody>();
+        Fire = transform.Find("Fire").GetComponent<VisualEffect>();
+        ReFire = transform.Find("ReFire").GetComponent<VisualEffect>();
+        Smoke = transform.Find("Smoke").GetComponent<VisualEffect>();
+        My_RDisslpate = transform.Find("Disslpate").GetComponent<MeshRenderer>();
+        dissolveProperties = new MaterialPropertyBlock();
+        marsRenderer = Mars.GetComponent<Renderer>();
+        dissolveBodyRenderer = DisslpateBody.GetComponent<Renderer>();
+    }
+
+    private void BindUserInterface()
+    {
+        responseText = FindText("ResponseRatio");
+        promptText = FindText("Prompt");
+        oxygenText = FindText("ParticleCount");
+        Match_ReFire_Step2 = FindText("Match_ReFire_Step2");
+        Match_ReFire_Step3 = FindText("Match_ReFire_Step3");
+    }
+
+    private static TMP_Text FindText(string objectName)
+    {
+        GameObject textObject = SceneObjectFinder.Find(objectName);
+        return textObject != null ? textObject.GetComponent<TMP_Text>() : null;
     }
 
     void Update()
     {
-        if (IF_CreateMatch.Have_Created_Match())
-        {
-            IF_CreateMatch.Have_New_Match();
-
-            Match = GameObject.Find("Match");
-            MatchHead = GameObject.Find("MatchHead");
-            Mars = GameObject.Find("Mars");
-            MHead = GameObject.Find("MHead");
-            stick = GameObject.Find("stick");
-            StickTirgger = GameObject.Find("StickTirgger");
-            STP = GameObject.Find("Match").GetComponent<Rigidbody>();
-            My_RStick = GameObject.Find("stick").GetComponent<MeshRenderer>();
-            DisslpateBody = GameObject.Find("DisslpateBody");
-            My_RDisslpate = GameObject.Find("Disslpate").GetComponent<MeshRenderer>();
-            Fire = GameObject.Find("Fire").GetComponent<VisualEffect>();
-            ReFire = GameObject.Find("ReFire").GetComponent<VisualEffect>();
-            Smoke = GameObject.Find("Smoke").GetComponent<VisualEffect>();
-            Stick_ContainerCollider = GameObject.Find("stick").GetComponent<BoxCollider>();
-
-
-            Can_refire = 0;
-            Is_refire = 0;
-            Is_fire = 0;
-            Flag = 0;
-            DissAdd = false;
-            DestroyDiss = false;
-
-            aliveParticleCount = 0;
-
-            Y = 0.2F;
-            Off = 0.500001F;
-            Dissposition = 0.600001F;
-
-            Fire.Stop();
-            ReFire.Stop();
-            Smoke.Stop();
-
-            Mars.GetComponent<Renderer>().enabled = false;
-            DisslpateBody.GetComponent<Renderer>().enabled = false;
-            My_RDisslpate.GetComponent<Renderer>().enabled = false;
-        }
-
-        if (IF_CreateMatch.Have_Match())
-        {
-            Particle_Number();
-            Short_Stick();
-            DisslpateCount();
-            if (DestroyDiss)
-                DestroyDisslpate();
-            OutSpeed();
-        }
+        Particle_Number();
+        Short_Stick();
+        DisslpateCount();
+        if (DestroyDiss)
+            DestroyDisslpate();
+        OutSpeed();
     }
 
     void Particle_Number()
     {
-        Random rd = new Random();
         if (Flag == 1)
         {
             if (aliveParticleCount < 450)
-                aliveParticleCount += rd.Next(-1, 4);
+                aliveParticleCount += random.Next(-1, 4);
             else if (aliveParticleCount > 820)
-                aliveParticleCount -= rd.Next(-1, 3);
+                aliveParticleCount -= random.Next(-1, 3);
             else if (aliveParticleCount < 790)
-                aliveParticleCount += rd.Next(-1, 3);
+                aliveParticleCount += random.Next(-1, 3);
             else
-                aliveParticleCount += rd.Next(-2, 2);
+                aliveParticleCount += random.Next(-2, 2);
+        }
+        else if (aliveParticleCount > 5)
+        {
+            aliveParticleCount -= random.Next(-1, 3);
         }
         else
         {
-            if (aliveParticleCount > 5)
-                aliveParticleCount -= rd.Next(-1, 3);
-            else
-                aliveParticleCount = 0;
+            aliveParticleCount = 0;
+        }
+        aliveParticleCount = Mathf.Max(0, aliveParticleCount);
+
+        if (responseText != null)
+        {
+            float divisor = Is_refire == 0 ? 40F : 10F;
+            responseText.text = "Response Ratio :" + (aliveParticleCount / divisor).ToString("F1").PadRight(13) + "\t%";
         }
 
-        if (Is_refire == 0)
-            T1.GetComponent<TMP_Text>().text = "Response Ratio :" + (aliveParticleCount / 40).ToString().PadRight(13) + "\t%";
-        else
+        if (Is_refire == 1)
         {
-            T1.GetComponent<TMP_Text>().text = "Response Ratio :" + (aliveParticleCount / 10).ToString().PadRight(13) + "\t%";
-            if (O2ParticleCount > 1)
-                O2ParticleCount--;
-            else if (O2ParticleCount == 1)
+            if (oxygenSupply != null)
+            {
+                oxygenSupply.ConsumeOxygen(OxygenPerSecond * Time.deltaTime);
+                O2ParticleCount = oxygenSupply.Amount;
+            }
+            else
+            {
+                O2ParticleCount = Mathf.Max(0, O2ParticleCount - OxygenPerSecond * Time.deltaTime);
+            }
+
+            if (O2ParticleCount <= 0)
             {
                 O2_Empty();
                 Can_refire = 0;
-                O2ParticleCount--;
-                T2.GetComponent<TMP_Text>().text = "Run out O2 ,cannot re start fier";
+                SetPrompt("Oxygen depleted. Use an external flame to ignite again.");
             }
         }
-        T3.GetComponent<TMP_Text>().text = "O2 Particle Count :" + O2ParticleCount.ToString();
 
-
-        //T.GetComponent<Text>().text = "ParticleCount: " + (Fire.aliveParticleCount + ReFire.aliveParticleCount).ToString();
+        UpdateOxygenText("O2 Particle Count :");
     }
 
     void Short_Stick()
     {
-        //Y -= 0.0001F;
-        if (aliveParticleCount > 600 && Off > 0.2)
+        if (aliveParticleCount > 600 && Off > 0.2F)
         {
-            {
-                if (Is_refire == 0)
-                    Off -= 0.0001F;
-                else
-                    Off -= 0.0002F;
-                //My_RStick.material.SetFloat("_Offest", Off);
-                //stick.transform.localScale = new Vector3(0.01F, Y, 0.01F);   //³¤¶È
-                //Mars.transform.localPosition = Vector3.MoveTowards(gameObject.transform.localPosition, new Vector3(0, Y, 0), step);
-                //Match_ContainerCollider.transform.localScale = new Vector3(0.005F, MatchLength, 0.005F);
-                Stick_ContainerCollider.transform.localScale = new Vector3(1, 2 * Off, 1);
-                Mars.transform.localPosition = new Vector3(0, Off, 0);
-                MHead.transform.localPosition = new Vector3(0, Off, 0);
-                Fire.transform.localPosition = new Vector3(0, Off, 0);
-                ReFire.transform.localPosition = new Vector3(0, Off, 0);
-                Smoke.transform.localPosition = new Vector3(0, Off, 0);
-                StickTirgger.transform.localPosition = new Vector3(0, Off+0.02F, 0);
+            float burnRate = Is_refire == 0 ? NormalBurnRate : ReFireBurnRate;
+            Off = Mathf.Max(0.2F, Off - burnRate * Time.deltaTime);
 
-                DisslpateBody.transform.localPosition = new Vector3(0, Off, 0);
-                My_RDisslpate.transform.localPosition = new Vector3(0, Off, 0);
-            }
+            Stick_ContainerCollider.transform.localScale = new Vector3(1, 2 * Off, 1);
+            Mars.transform.localPosition = new Vector3(0, Off, 0);
+            MHead.transform.localPosition = new Vector3(0, Off, 0);
+            Fire.transform.localPosition = new Vector3(0, Off, 0);
+            ReFire.transform.localPosition = new Vector3(0, Off, 0);
+            Smoke.transform.localPosition = new Vector3(0, Off, 0);
+            StickTirgger.transform.localPosition = new Vector3(0, Off + 0.02F, 0);
+            DisslpateBody.transform.localPosition = new Vector3(0, Off, 0);
+            My_RDisslpate.transform.localPosition = new Vector3(0, Off, 0);
         }
-        if (Off <= 0.2)
+
+        if (Off <= 0.2F && Flag == 1)
         {
             stopfire();
-            T2.GetComponent<TMP_Text>().text = "Match is too short";
+            Can_refire = 0;
+            SetPrompt("Match is burned out and cannot be reused");
         }
     }
 
     void DisslpateCount()
     {
-        if (Is_fire == 1)
-        {
-            if (DissAdd)
-            {
-                Dissposition += 0.00005F;
-                if (Dissposition > 0.6)
-                    DissAdd = false;
-            }
-            else
-            {
-                Dissposition -= 0.00005F;
-                if (Dissposition < 0.5)
-                    DissAdd = true;
-            }
-            My_RDisslpate.material.SetFloat("Offest", Dissposition - 0.2F);
-            My_RDisslpate.material.SetFloat("Disslpate", Dissposition);
-        }
-    }
+        if (Is_fire != 1)
+            return;
 
+        Dissposition += (DissAdd ? 0.003F : -0.003F) * Time.deltaTime;
+        if (Dissposition > 0.6F)
+        {
+            Dissposition = 0.6F;
+            DissAdd = false;
+        }
+        else if (Dissposition < 0.5F)
+        {
+            Dissposition = 0.5F;
+            DissAdd = true;
+        }
+
+        My_RDisslpate.GetPropertyBlock(dissolveProperties);
+        dissolveProperties.SetFloat("Offest", Dissposition - 0.2F);
+        dissolveProperties.SetFloat("Disslpate", Dissposition);
+        My_RDisslpate.SetPropertyBlock(dissolveProperties);
+    }
 
     public void startfire()
     {
-        Destroy(MatchHead);
+        if (Off <= 0.2F)
+        {
+            Can_refire = 0;
+            SetPrompt("Match is burned out and cannot be ignited again");
+            return;
+        }
+
+        // Repeated trigger stays must not restart VFX or reset the burn effect.
+        if (Is_fire == 1 && Is_refire == 0)
+            return;
+
+        CancelPendingExtinction();
+        if (MatchHead != null)
+            Destroy(MatchHead);
+
         Fire.Play();
         ReFire.Stop();
         Smoke.Play();
-        Mars.GetComponent<Renderer>().enabled = true;
-        DisslpateBody.GetComponent<Renderer>().enabled = true;
-        My_RDisslpate.GetComponent<Renderer>().enabled = true;
+        marsRenderer.enabled = true;
+        dissolveBodyRenderer.enabled = true;
+        My_RDisslpate.enabled = true;
 
-        T2.GetComponent<TMP_Text>().text = "Start Fire : O2 + C = CO2 ";
+        SetPrompt("Start Fire : O2 + C = CO2 ");
         Can_refire = 1;
         Is_fire = 1;
         Is_refire = 0;
         Flag = 1;
-        //T.GetComponent<Text>().text = "Play ParticleCount: " + (Fire.aliveParticleCount + ReFire.aliveParticleCount).ToString();
-        //Debug.Log("Start Fire" + "  " + "The number of particle: " + Fire.aliveParticleCount);
-
     }
 
     public void stopfire()
     {
+        if (Flag == 0)
+            return;
+
         Fire.Stop();
         ReFire.Stop();
-        //Smoke.Stop();
         Is_refire = 0;
         Is_fire = 0;
         Flag = 0;
-        DisslpateBody.GetComponent<Renderer>().enabled = false;
+        Can_refire = 1;
+        dissolveBodyRenderer.enabled = false;
+
+        CancelInvoke("SetDestroyDisslpate");
+        CancelInvoke("DelayStopFire");
         Invoke("SetDestroyDisslpate", 2F);
         Invoke("DelayStopFire", 5F);
-        T2.GetComponent<TMP_Text>().text = "Stop Fire ,please put match in O2 bottle in 5s ";
-        //T.GetComponent<Text>().text = "Stop ParticleCount: " + (Fire.aliveParticleCount + ReFire.aliveParticleCount).ToString();
-        //Debug.Log("Stop Fire" + "  " + "The number of particle: " + Fire.aliveParticleCount);
+        SetPrompt("Stop Fire, please put match in O2 bottle in 5s ");
     }
 
     public void refire()
     {
-        if (Can_refire == 1)
+        if (Off <= 0.2F)
         {
-            if (Is_fire == 0)
-            {
-                if (Match_ReFire_Score.Project_Num() == 2 && Match_ReFire_Score.If_Match_ReFire_Step2())
-                {
-                    Match_ReFire_Step3 = GameObject.Find("Match_ReFire_Step3");
-                    Match_ReFire_Score.Yes_Match_ReFire_Step3();
-                    Match_ReFire_Step3.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
-                }
-            }
-
-            Fire.Stop();
-            ReFire.Play();
-            ReFire.playRate = 2;
-            Smoke.Play();
-            Mars.GetComponent<Renderer>().enabled = true;
-            DisslpateBody.GetComponent<Renderer>().enabled = true;
-            My_RDisslpate.GetComponent<Renderer>().enabled = true;
-
-            T2.GetComponent<TMP_Text>().text = "Restart Fire : O2 + C = CO2 ";
-            Can_refire = 1;
-            Is_fire = 1;
-            Is_refire = 1;
-            Flag = 1;
+            Can_refire = 0;
+            SetPrompt("Match is burned out and cannot restart fire");
+            return;
         }
-        else
-            T2.GetComponent<TMP_Text>().text = "Cannot restart fire";
-        //T.GetComponent<Text>().text = "Re ParticleCount: " + (Fire.aliveParticleCount + ReFire.aliveParticleCount).ToString();
-        //Debug.Log("ReFire" + "  " + "The number of particle: " + ReFire.aliveParticleCount);
+
+        if (Can_refire != 1 || (oxygenSupply != null ? oxygenSupply.Amount <= 0F : O2ParticleCount <= 0))
+        {
+            SetPrompt("Cannot restart fire: no oxygen or the ember is cold");
+            return;
+        }
+
+        // Entering the same oxygen volume again must not replay the effect.
+        if (Is_fire == 1 && Is_refire == 1)
+            return;
+
+        if (Is_fire == 0 && Match_ReFire_Score != null && Match_ReFire_Score.Project_Num() == 2 && Match_ReFire_Score.If_Match_ReFire_Step2())
+        {
+            Match_ReFire_Score.Yes_Match_ReFire_Step3();
+            if (Match_ReFire_Step3 != null)
+                Match_ReFire_Step3.color = Color.green;
+        }
+
+        CancelPendingExtinction();
+        Fire.Stop();
+        ReFire.Play();
+        ReFire.playRate = 2;
+        Smoke.Play();
+        marsRenderer.enabled = true;
+        dissolveBodyRenderer.enabled = true;
+        My_RDisslpate.enabled = true;
+
+        SetPrompt("Restart Fire : O2 + C = CO2 ");
+        Can_refire = 1;
+        Is_fire = 1;
+        Is_refire = 1;
+        Flag = 1;
     }
 
     public void exit_O2()
     {
+        if (Is_fire == 0 || Is_refire == 0)
+            return;
+
         Fire.Play();
         ReFire.Stop();
         Smoke.Play();
@@ -336,26 +331,32 @@ public class VisualEffectGraph : MonoBehaviour
         Is_fire = 1;
         Is_refire = 0;
         Flag = 1;
-        Mars.GetComponent<Renderer>().enabled = true;
-        DisslpateBody.GetComponent<Renderer>().enabled = true;
-        My_RDisslpate.GetComponent<Renderer>().enabled = true;
+        marsRenderer.enabled = true;
+        dissolveBodyRenderer.enabled = true;
+        My_RDisslpate.enabled = true;
+        SetPrompt("Exit O2, fire become smaller");
+    }
 
-        T2.GetComponent<TMP_Text>().text = "Exit O2 ,fire become smaller";
-        //T.GetComponent<Text>().text = "Re ParticleCount: " + (Fire.aliveParticleCount + ReFire.aliveParticleCount).ToString();
-        //Debug.Log("ReFire" + "  " + "The number of particle: " + ReFire.aliveParticleCount);
+    private void CancelPendingExtinction()
+    {
+        CancelInvoke("SetDestroyDisslpate");
+        CancelInvoke("DelayStopFire");
+        DestroyDiss = false;
+        DissAdd = false;
+        Dissposition = 0.600001F;
     }
 
     public void DelayStopFire()
     {
-        if (Flag == 0)
-        {
-            Smoke.Stop();
-            Mars.GetComponent<Renderer>().enabled = false;
-            T2.GetComponent<TMP_Text>().text = "Too late ,the fire cannot restart ";
-            Can_refire = 0;
-            Is_fire = 0;
-            Is_refire = 0;
-        }
+        if (Flag != 0)
+            return;
+
+        Smoke.Stop();
+        marsRenderer.enabled = false;
+        SetPrompt("Too late, the fire cannot restart ");
+        Can_refire = 0;
+        Is_fire = 0;
+        Is_refire = 0;
     }
 
     public void SetDestroyDisslpate()
@@ -366,17 +367,18 @@ public class VisualEffectGraph : MonoBehaviour
 
     public void DestroyDisslpate()
     {
-        if (Dissposition > 0.1)
+        if (Dissposition > 0.1F)
         {
-            Dissposition -= 0.001F;
-            My_RDisslpate.material.SetFloat("Offest", Dissposition - 0.2F);
-            My_RDisslpate.material.SetFloat("Disslpate", Dissposition);
+            Dissposition = Mathf.Max(0.1F, Dissposition - 0.06F * Time.deltaTime);
+            My_RDisslpate.GetPropertyBlock(dissolveProperties);
+        dissolveProperties.SetFloat("Offest", Dissposition - 0.2F);
+            dissolveProperties.SetFloat("Disslpate", Dissposition);
+            My_RDisslpate.SetPropertyBlock(dissolveProperties);
         }
         else
         {
-            My_RDisslpate.GetComponent<Renderer>().enabled = false;
+            My_RDisslpate.enabled = false;
             Dissposition = 0.600001F;
-            //Debug.Log(Dissposition);
             DestroyDiss = false;
             DissAdd = false;
         }
@@ -384,52 +386,123 @@ public class VisualEffectGraph : MonoBehaviour
 
     public void OutSpeed()
     {
-        if (Is_fire == 1)
+        if (Is_fire != 1 || matchBody.velocity.magnitude <= 3.5F)
+            return;
+
+        stopfire();
+        if (Match_ReFire_Score != null && Match_ReFire_Score.Project_Num() == 2 && Match_ReFire_Score.If_Match_ReFire_Step1())
         {
-            if (STP.velocity.magnitude > 3.5)
-            {
-                stopfire();
-                if (Match_ReFire_Score.Project_Num() == 2 && Match_ReFire_Score.If_Match_ReFire_Step1())
-                {
-                    Match_ReFire_Step2 = GameObject.Find("Match_ReFire_Step2");
-                    Match_ReFire_Score.Yes_Match_ReFire_Step2();
-                    Match_ReFire_Step2.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
-                }
-            }
+            Match_ReFire_Score.Yes_Match_ReFire_Step2();
+            if (Match_ReFire_Step2 != null)
+                Match_ReFire_Step2.color = Color.green;
         }
     }
 
     public void O2_Empty()
     {
         if (Flag == 1)
-            startfire();
-        else
             stopfire();
+        Can_refire = 0;
     }
 
     public bool C_refire()
     {
-        if (Can_refire == 1)
-            return true;
-        return false;
+        return Can_refire == 1;
     }
 
     public void AddO2Count()
     {
-        O2ParticleCount++;
-        T3.GetComponent<TMP_Text>().text = "Making O2: Particle Count :" + O2ParticleCount.ToString();
+        if (oxygenSupply != null)
+        {
+            oxygenSupply.AddOxygen(OxygenPerSecond * Time.fixedDeltaTime);
+            O2ParticleCount = oxygenSupply.Amount;
+        }
+        else
+        {
+            O2ParticleCount = Mathf.Min(MaxOxygen, O2ParticleCount + OxygenPerSecond * Time.fixedDeltaTime);
+        }
+        UpdateOxygenText("Making O2: Particle Count :");
     }
 
     public void Start_ReFireStick()
     {
-        O2ParticleCount=10000;
-        T3.GetComponent<TMP_Text>().text = "Making O2: Particle Count :" + O2ParticleCount.ToString();
+        if (oxygenSupply != null)
+        {
+            oxygenSupply.InitializeForExperiment();
+            O2ParticleCount = oxygenSupply.Amount;
+        }
+        else
+        {
+            O2ParticleCount = MaxOxygen;
+        }
+        UpdateOxygenText("Making O2: Particle Count :");
     }
 
     public bool IfFire()
     {
-        if (Is_fire == 1)
-            return true;
-        return false;
+        return Is_fire == 1;
+    }
+
+    private void OnOxygenAmountChanged(float amount)
+    {
+        O2ParticleCount = amount;
+        UpdateOxygenText("O2 Particle Count :");
+    }
+
+    private void OnDestroy()
+    {
+        if (oxygenSupply != null)
+            oxygenSupply.AmountChanged -= OnOxygenAmountChanged;
+        if (runner != null)
+            runner.ExperimentReset -= OnExperimentReset;
+    }
+
+    private void OnExperimentReset()
+    {
+        ResetForExperiment();
+    }
+
+    public void ResetForExperiment()
+    {
+        CancelInvoke();
+        Can_refire = 0;
+        Is_fire = 0;
+        Is_refire = 0;
+        Flag = 0;
+        DissAdd = false;
+        DestroyDiss = false;
+        aliveParticleCount = 0;
+        O2ParticleCount = oxygenSupply != null ? oxygenSupply.Amount : 0F;
+        Off = 0.500001F;
+        Dissposition = 0.600001F;
+        if (matchBody != null)
+        {
+            matchBody.velocity = Vector3.zero;
+            matchBody.angularVelocity = Vector3.zero;
+        }
+        if (Fire != null)
+            Fire.Stop();
+        if (ReFire != null)
+            ReFire.Stop();
+        if (Smoke != null)
+            Smoke.Stop();
+        if (marsRenderer != null)
+            marsRenderer.enabled = false;
+        if (dissolveBodyRenderer != null)
+            dissolveBodyRenderer.enabled = false;
+        if (My_RDisslpate != null)
+            My_RDisslpate.enabled = false;
+    }
+
+    private void SetPrompt(string message)
+    {
+        if (promptText != null)
+            promptText.text = message;
+    }
+
+    private void UpdateOxygenText(string prefix)
+    {
+        if (oxygenText != null)
+            oxygenText.text = prefix + O2ParticleCount.ToString("F0");
     }
 }

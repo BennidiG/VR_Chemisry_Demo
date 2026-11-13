@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
@@ -7,63 +5,65 @@ public class O2IntoBottle : MonoBehaviour
 {
     private static bool MakeingO2;
 
-    private GameObject T2;
-    private GameObject Make_O2_Step7;
-    //private GameObject Text_Hints;
+    private TMP_Text Make_O2_Step7;
+    private OxygenSupply O2Count;
+    private Score Match_ReFire_Score;
+    private ExperimentRunner runner;
 
-    VisualEffectGraph O2Count = new VisualEffectGraph();
-    Score Match_ReFire_Score = new Score();
-    // Start is called before the first frame update
+    [Min(0F)] public float minimumCollectionAmount = 120F;
+
     void Start()
     {
         MakeingO2 = false;
-        T2 = GameObject.Find("Prompt");
+        runner = ExperimentRunner.GetOrCreate();
+        runner.ExperimentReset += OnExperimentReset;
 
-        Make_O2_Step7 = GameObject.Find("Make_O2_Step7");
-        //Text_Hints = GameObject.Find("Hints");
+        GameObject stepObject = SceneObjectFinder.Find("Make_O2_Step7");
+        if (stepObject != null)
+            Make_O2_Step7 = stepObject.GetComponent<TMP_Text>();
+
+        O2Count = FindObjectOfType<OxygenSupply>();
+        Match_ReFire_Score = FindObjectOfType<Score>();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnDestroy()
     {
-        
+        if (runner != null)
+            runner.ExperimentReset -= OnExperimentReset;
     }
 
     public void OnTriggerEnter(Collider collider)
     {
-        if (collider.name == "O2IntoColl")
-        {
-            if (MakeingO2)
-            {
-                if (Match_ReFire_Score.Project_Num() == 1 && Match_ReFire_Score.If_Make_O2_Step6())
-                {
-                    Make_O2_Step7 = GameObject.Find("Make_O2_Step7");
-                    //Text_Hints.GetComponent<TMP_Text>().text = "完成实验\n请将器材放回原位";
-                    Make_O2_Step7.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
-                    Match_ReFire_Score.Yes_Make_O2_Step7();
-                }
-            }
-        }
+        if (collider.name == "O2IntoColl" && CanCollectOxygen())
+            TryCompleteCollectionStep();
     }
 
     public void OnTriggerStay(Collider collider)
     {
-        if (collider.name == "O2IntoColl")
-        {
-            if (MakeingO2)
-            {
-                O2Count.AddO2Count();
-                //T2.GetComponent<Text>().text = "O2 into bottle";
-            }
-        }
+        if (collider.name != "O2IntoColl" || !CanCollectOxygen())
+            return;
+
+        TryCompleteCollectionStep();
+        O2Count.AddOxygen(60F * Time.fixedDeltaTime);
     }
 
-    public void OnTriggerExit(Collider collider)
+    private bool CanCollectOxygen()
     {
-        if (collider.name == "O2IntoColl")
-        {
+        return MakeingO2 && Match_ReFire_Score != null && Match_ReFire_Score.Project_Num() == 1 && Match_ReFire_Score.If_Make_O2_Step6() && O2Count != null;
+    }
 
-        }
+    private void TryCompleteCollectionStep()
+    {
+        if (Match_ReFire_Score == null || Match_ReFire_Score.Project_Num() != 1)
+            return;
+        if (!Match_ReFire_Score.If_Make_O2_Step6() || Match_ReFire_Score.If_Make_O2_Step7())
+            return;
+        if (O2Count == null || O2Count.Amount < minimumCollectionAmount)
+            return;
+
+        if (Make_O2_Step7 != null)
+            Make_O2_Step7.color = Color.green;
+        Match_ReFire_Score.Yes_Make_O2_Step7();
     }
 
     public void MakeingO2True()
@@ -74,5 +74,19 @@ public class O2IntoBottle : MonoBehaviour
     public void MakeingO2False()
     {
         MakeingO2 = false;
+    }
+
+    public void ResetForExperiment()
+    {
+        MakeingO2 = false;
+        if (O2Count != null)
+            O2Count.ResetSupply();
+    }
+
+    private void OnExperimentReset()
+    {
+        MakeingO2 = false;
+        if (runner.ShouldResetOxygen)
+            ResetForExperiment();
     }
 }

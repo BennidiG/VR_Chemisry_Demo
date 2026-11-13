@@ -7,11 +7,12 @@ public class CorkConCatheter : MonoBehaviour
 {
     private GameObject Text_Make_O2_Step4;
 
-    Score Match_ReFire_Score = new Score();
+    private Score Match_ReFire_Score;
     // Start is called before the first frame update
     void Start()
     {
-        Text_Make_O2_Step4 = GameObject.Find("Make_O2_Step4");
+        Match_ReFire_Score = FindObjectOfType<Score>();
+        Text_Make_O2_Step4 = SceneObjectFinder.Find("Make_O2_Step4");
     }
 
     // Update is called once per frame
@@ -26,7 +27,7 @@ public class CorkConCatheter : MonoBehaviour
         {
             if (Match_ReFire_Score.Project_Num() == 1 && Match_ReFire_Score.If_Make_O2_Step3())
             {
-                Text_Make_O2_Step4 = GameObject.Find("Make_O2_Step4");
+                Text_Make_O2_Step4 = SceneObjectFinder.Find("Make_O2_Step4");
                 Text_Make_O2_Step4.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
                 Match_ReFire_Score.Make_O2_Step3_To_Step4();
             }

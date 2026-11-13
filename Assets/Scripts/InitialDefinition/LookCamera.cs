@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class LookCamera : MonoBehaviour
 {
-    private Transform target;//ÉãÏñ»ú¶ÔÏó
+    private Transform target;//æ‘„åƒæœºå¯¹è±¡
     // Start is called before the first frame update
     void Start()
     {

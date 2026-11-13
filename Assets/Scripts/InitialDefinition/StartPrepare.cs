@@ -31,25 +31,25 @@ public class StartPrepare : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        MakeO2Socket = GameObject.Find("MakeO2Socket");
-        MatchReFireSocket = GameObject.Find("MatchReFireSocket");
+        MakeO2Socket = SceneObjectFinder.Find("MakeO2Socket");
+        MatchReFireSocket = SceneObjectFinder.Find("MatchReFireSocket");
 
-        Hints = GameObject.Find("Hints");
-        Text_Hints = GameObject.Find("Hints/Content");
-        Text_Make_O2_Steps = GameObject.Find("Make_O2_Steps");
-        Text_Match_ReFire_Steps = GameObject.Find("Match_ReFire_Steps");
+        Hints = SceneObjectFinder.Find("Hints");
+        Text_Hints = SceneObjectFinder.Find("Hints/Content");
+        Text_Make_O2_Steps = SceneObjectFinder.Find("Make_O2_Steps");
+        Text_Match_ReFire_Steps = SceneObjectFinder.Find("Match_ReFire_Steps");
 
-        Text_Make_O2_Step1 = GameObject.Find("Make_O2_Step1");
-        Text_Make_O2_Step2 = GameObject.Find("Make_O2_Step2");
-        Text_Make_O2_Step3 = GameObject.Find("Make_O2_Step3");
-        Text_Make_O2_Step4 = GameObject.Find("Make_O2_Step4");
-        Text_Make_O2_Step5 = GameObject.Find("Make_O2_Step5");
-        Text_Make_O2_Step6 = GameObject.Find("Make_O2_Step6");
-        Text_Make_O2_Step7 = GameObject.Find("Make_O2_Step7");
+        Text_Make_O2_Step1 = SceneObjectFinder.Find("Make_O2_Step1");
+        Text_Make_O2_Step2 = SceneObjectFinder.Find("Make_O2_Step2");
+        Text_Make_O2_Step3 = SceneObjectFinder.Find("Make_O2_Step3");
+        Text_Make_O2_Step4 = SceneObjectFinder.Find("Make_O2_Step4");
+        Text_Make_O2_Step5 = SceneObjectFinder.Find("Make_O2_Step5");
+        Text_Make_O2_Step6 = SceneObjectFinder.Find("Make_O2_Step6");
+        Text_Make_O2_Step7 = SceneObjectFinder.Find("Make_O2_Step7");
 
-        Text_Match_ReFire_Step1 = GameObject.Find("Match_ReFire_Step1");
-        Text_Match_ReFire_Step2 = GameObject.Find("Match_ReFire_Step2");
-        Text_Match_ReFire_Step3 = GameObject.Find("Match_ReFire_Step3");
+        Text_Match_ReFire_Step1 = SceneObjectFinder.Find("Match_ReFire_Step1");
+        Text_Match_ReFire_Step2 = SceneObjectFinder.Find("Match_ReFire_Step2");
+        Text_Match_ReFire_Step3 = SceneObjectFinder.Find("Match_ReFire_Step3");
 
         Project = 0;
 
@@ -87,7 +87,7 @@ public class StartPrepare : MonoBehaviour
 
 
         Project = 1;
-        Text_Hints.GetComponent<TMP_Text>().text = "    实验器材: 火柴 药瓶 试管 导管 酒精灯 试管夹 水盆 氧气瓶 勺子\n    将用到的实验器材移动到左边的桌子上";
+        Text_Hints.GetComponent<TMP_Text>().text = ExperimentRunner.GetOrCreate().GetDefinition(1).GetDescription();
     }
 
     public void Match_ReFire()
@@ -103,7 +103,7 @@ public class StartPrepare : MonoBehaviour
         Text_Make_O2_Steps.gameObject.SetActive(false);
         Text_Match_ReFire_Steps.gameObject.SetActive(false);
         Project = 2;
-        Text_Hints.GetComponent<TMP_Text>().text = "    实验器材: 火柴 酒精灯 氧气瓶\n    将用到的实验器材移动到左边的桌子上";
+        Text_Hints.GetComponent<TMP_Text>().text = ExperimentRunner.GetOrCreate().GetDefinition(2).GetDescription();
     }
 
     public int Project_Num()

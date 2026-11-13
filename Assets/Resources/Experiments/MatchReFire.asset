@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f24b1f1b7f34a0e9c0de54a6c510001, type: 3}
+  m_Name: MatchReFire
+  m_EditorClassIdentifier: 
+  projectNumber: 2
+  experimentId: match_refire
+  chineseName: 火柴复燃实验
+  englishName: Match Reignition
+  chineseDescription: 观察带火星的木条在富氧环境中的复燃现象。
+  englishDescription: Observe a glowing match reigniting in an oxygen-rich environment.
+  requiredEquipment: 010000000b00000009000000
+  steps:
+  - stepId: ignite_match_and_lamp
+    chineseTitle: 步骤一：点燃火柴和酒精灯
+    englishTitle: 'Step 1: Light the match and alcohol lamp'
+    chineseInstruction: 先点燃火柴，再用火柴点燃酒精灯。
+    englishInstruction: Light the match first, then use it to light the alcohol lamp.
+    chineseSafetyNote: 点燃后远离易燃物，注意火焰和高温器材。
+    englishSafetyNote: Keep the flame away from flammable objects and hot apparatus.
+    scoreWeight: 5
+    highlightItems: 0100000009000000
+  - stepId: extinguish_match_keep_ember
+    chineseTitle: 步骤二：甩灭火柴并保留火星
+    englishTitle: 'Step 2: Extinguish the flame but keep the ember'
+    chineseInstruction: 快速甩动火柴使火焰熄灭，在约 5 秒内进行下一步。
+    englishInstruction: Shake the match to extinguish the flame and continue within about five seconds.
+    chineseSafetyNote: 甩动时避开手部、其他器材和易燃物。
+    englishSafetyNote: Keep your hands, apparatus and flammable materials clear while shaking.
+    scoreWeight: 5
+    highlightItems: 01000000
+  - stepId: refire_in_oxygen
+    chineseTitle: 步骤三：将带火星的火柴放入氧气瓶复燃
+    englishTitle: 'Step 3: Reignite the glowing match in oxygen'
+    chineseInstruction: 在余烬熄灭前将火柴放入氧气瓶，观察火焰重新变大；氧气耗尽后火焰会熄灭。
+    englishInstruction: Place the glowing match in the oxygen bottle before the ember dies. Oxygen depletion extinguishes the flame.
+    chineseSafetyNote: 不要触摸火焰；实验结束后将火柴放入指定回收位置。
+    englishSafetyNote: Do not touch the flame. Place the used match in the designated disposal area.
+    scoreWeight: 5
+    highlightItems: 010000000b000000
+  cleanupCriteria:
+  - cleanupId: match_destroyed
+    itemType: 1
+    chineseName: 废弃火柴已回收
+    englishName: Used match disposed
+    scoreWeight: 1
+  - cleanupId: alcohol_lamp
+    itemType: 9
+    chineseName: 酒精灯
+    englishName: Alcohol lamp
+    scoreWeight: 1
+  - cleanupId: alcohol_lamp_cap
+    itemType: 10
+    chineseName: 酒精灯帽
+    englishName: Alcohol lamp cap
+    scoreWeight: 1
+  - cleanupId: glass_bottle
+    itemType: 11
+    chineseName: 氧气瓶
+    englishName: Oxygen bottle
+    scoreWeight: 1
+  - cleanupId: glass_bottle_cap
+    itemType: 12
+    chineseName: 氧气瓶盖
+    englishName: Oxygen bottle cap
+    scoreWeight: 1

@@ -32,12 +32,16 @@ public class GetPowder : MonoBehaviour
     private static bool Is_Powder_Test7;
     private static bool Is_Powder_Test8;
 
-    Score Match_ReFire_Score = new Score();
+    private Score Match_ReFire_Score;
+    private ExperimentRunner runner;
 
     //Hints Step = new Hints();
     // Start is called before the first frame update
     void Start()
     {
+        Match_ReFire_Score = FindObjectOfType<Score>();
+        runner = ExperimentRunner.GetOrCreate();
+        runner.ExperimentReset += OnExperimentReset;
         Powder = GameObject.Find("Powder");
         Powder_Test1 = GameObject.Find("Powder_Test1");
         Powder_Test2 = GameObject.Find("Powder_Test2");
@@ -87,13 +91,11 @@ public class GetPowder : MonoBehaviour
             if (Match_ReFire_Score.Project_Num() == 1 && Match_ReFire_Score.If_Make_O2_Ready())
             {
                 Make_O2_Step1 = GameObject.Find("Make_O2_Step1");
-                //Step.Make_O2_Step2();
-                //Make_O2_Step1.GetComponent<TMP_Text>().text = "步骤二：将药勺的药品放到试管中";
-                Make_O2_Step1.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
+                Make_O2_Step1.GetComponent<TMP_Text>().color = Color.green;
                 Match_ReFire_Score.Yes_Make_O2_Step1();
+                Powder.GetComponent<Renderer>().enabled = true;
+                Is_Powder = true;
             }
-            Powder.GetComponent<Renderer>().enabled = true;
-            Is_Powder = true;
         }
 
         if (collider.name == "Powder_TestColl1")
@@ -104,7 +106,7 @@ public class GetPowder : MonoBehaviour
                 {
                     Make_O2_Step2 = GameObject.Find("Make_O2_Step2");
                     //Step.Make_O2_Step3();
-                    //Make_O2_Step2.GetComponent<TMP_Text>().text = "步骤三：将试管和塞子连接";
+                    //Make_O2_Step2.GetComponent<TMP_Text>().text = "姝ラ涓夛細灏嗚瘯绠″拰濉炲瓙杩炴帴";
                     Make_O2_Step2.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
                     Match_ReFire_Score.Yes_Make_O2_Step2();
                 }
@@ -125,7 +127,7 @@ public class GetPowder : MonoBehaviour
                 {
                     Make_O2_Step2 = GameObject.Find("Make_O2_Step2");
                     //Step.Make_O2_Step3();
-                    //Make_O2_Step2.GetComponent<TMP_Text>().text = "步骤三：将试管和塞子连接";
+                    //Make_O2_Step2.GetComponent<TMP_Text>().text = "姝ラ涓夛細灏嗚瘯绠″拰濉炲瓙杩炴帴";
                     Make_O2_Step2.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
                     Match_ReFire_Score.Yes_Make_O2_Step2();
                 }
@@ -146,7 +148,7 @@ public class GetPowder : MonoBehaviour
                 {
                     Make_O2_Step2 = GameObject.Find("Make_O2_Step2");
                     //Step.Make_O2_Step3();
-                    //Make_O2_Step2.GetComponent<TMP_Text>().text = "步骤三：将试管和塞子连接";
+                    //Make_O2_Step2.GetComponent<TMP_Text>().text = "姝ラ涓夛細灏嗚瘯绠″拰濉炲瓙杩炴帴";
                     Make_O2_Step2.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
                     Match_ReFire_Score.Yes_Make_O2_Step2();
                 }
@@ -167,7 +169,7 @@ public class GetPowder : MonoBehaviour
                 {
                     Make_O2_Step2 = GameObject.Find("Make_O2_Step2");
                     //Step.Make_O2_Step3();
-                    //Make_O2_Step2.GetComponent<TMP_Text>().text = "步骤三：将试管和塞子连接";
+                    //Make_O2_Step2.GetComponent<TMP_Text>().text = "姝ラ涓夛細灏嗚瘯绠″拰濉炲瓙杩炴帴";
                     Make_O2_Step2.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
                     Match_ReFire_Score.Yes_Make_O2_Step2();
                 }
@@ -188,7 +190,7 @@ public class GetPowder : MonoBehaviour
                 {
                     Make_O2_Step2 = GameObject.Find("Make_O2_Step2");
                     //Step.Make_O2_Step3();
-                    //Make_O2_Step2.GetComponent<TMP_Text>().text = "步骤三：将试管和塞子连接";
+                    //Make_O2_Step2.GetComponent<TMP_Text>().text = "姝ラ涓夛細灏嗚瘯绠″拰濉炲瓙杩炴帴";
                     Make_O2_Step2.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
                     Match_ReFire_Score.Yes_Make_O2_Step2();
                 }
@@ -209,7 +211,7 @@ public class GetPowder : MonoBehaviour
                 {
                     Make_O2_Step2 = GameObject.Find("Make_O2_Step2");
                     //Step.Make_O2_Step3();
-                    //Make_O2_Step2.GetComponent<TMP_Text>().text = "步骤三：将试管和塞子连接";
+                    //Make_O2_Step2.GetComponent<TMP_Text>().text = "姝ラ涓夛細灏嗚瘯绠″拰濉炲瓙杩炴帴";
                     Make_O2_Step2.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
                     Match_ReFire_Score.Yes_Make_O2_Step2();
                 }
@@ -230,7 +232,7 @@ public class GetPowder : MonoBehaviour
                 {
                     Make_O2_Step2 = GameObject.Find("Make_O2_Step2");
                     //Step.Make_O2_Step3();
-                    //Make_O2_Step2.GetComponent<TMP_Text>().text = "步骤三：将试管和塞子连接";
+                    //Make_O2_Step2.GetComponent<TMP_Text>().text = "姝ラ涓夛細灏嗚瘯绠″拰濉炲瓙杩炴帴";
                     Make_O2_Step2.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
                     Match_ReFire_Score.Yes_Make_O2_Step2();
                 }
@@ -251,7 +253,7 @@ public class GetPowder : MonoBehaviour
                 {
                     Make_O2_Step2 = GameObject.Find("Make_O2_Step2");
                     //Step.Make_O2_Step3();
-                    //Make_O2_Step2.GetComponent<TMP_Text>().text = "步骤三：将试管和塞子连接";
+                    //Make_O2_Step2.GetComponent<TMP_Text>().text = "姝ラ涓夛細灏嗚瘯绠″拰濉炲瓙杩炴帴";
                     Make_O2_Step2.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
                     Match_ReFire_Score.Yes_Make_O2_Step2();
                 }
@@ -268,15 +270,56 @@ public class GetPowder : MonoBehaviour
     public void OnTriggerStay(Collider collider)
     {
         if (collider.name == "Drug")
-        {
-            Powder.GetComponent<Renderer>().enabled = true;
-            Is_Powder = true;
-        }
+            OnTriggerEnter(collider);
     }
 
     public void OnTriggerExit(Collider collider)
     {
 
+    }
+
+    private void OnDestroy()
+    {
+        if (runner != null)
+            runner.ExperimentReset -= OnExperimentReset;
+    }
+
+    private void OnExperimentReset()
+    {
+        ResetForExperiment();
+    }
+
+    public void ResetForExperiment()
+    {
+        Is_Powder = false;
+        Is_Powder_Test = false;
+        Is_Powder_Test1 = false;
+        Is_Powder_Test2 = false;
+        Is_Powder_Test3 = false;
+        Is_Powder_Test4 = false;
+        Is_Powder_Test5 = false;
+        Is_Powder_Test6 = false;
+        Is_Powder_Test7 = false;
+        Is_Powder_Test8 = false;
+
+        if (Powder != null)
+            Powder.GetComponent<Renderer>().enabled = false;
+        if (Powder_Test1 != null)
+            Powder_Test1.GetComponent<Renderer>().enabled = false;
+        if (Powder_Test2 != null)
+            Powder_Test2.GetComponent<Renderer>().enabled = false;
+        if (Powder_Test3 != null)
+            Powder_Test3.GetComponent<Renderer>().enabled = false;
+        if (Powder_Test4 != null)
+            Powder_Test4.GetComponent<Renderer>().enabled = false;
+        if (Powder_Test5 != null)
+            Powder_Test5.GetComponent<Renderer>().enabled = false;
+        if (Powder_Test6 != null)
+            Powder_Test6.GetComponent<Renderer>().enabled = false;
+        if (Powder_Test7 != null)
+            Powder_Test7.GetComponent<Renderer>().enabled = false;
+        if (Powder_Test8 != null)
+            Powder_Test8.GetComponent<Renderer>().enabled = false;
     }
 
     public bool Can_Burn()

@@ -7,6 +7,6 @@ public class ReG : MonoBehaviour
 
     public void Click()
     {
-        SceneManager.LoadScene(0);
+        ExperimentRunner.GetOrCreate().ResetCurrentExperiment();
     }
 }

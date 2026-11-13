@@ -19,23 +19,24 @@ public class Hints : MonoBehaviour
     private GameObject Text_Match_ReFire_Step3;
     private GameObject Text_Match_ReFire_Finish;
 
-    Score Match_ReFire_Score = new Score();
+    private Score Match_ReFire_Score;
     // Start is called before the first frame update
     void Start()
     {
-        Text_Make_O2_Step1 = GameObject.Find("Make_O2_Step1");
-        Text_Make_O2_Step2 = GameObject.Find("Make_O2_Step2");
-        Text_Make_O2_Step3 = GameObject.Find("Make_O2_Step3");
-        Text_Make_O2_Step4 = GameObject.Find("Make_O2_Step4");
-        Text_Make_O2_Step5 = GameObject.Find("Make_O2_Step5");
-        Text_Make_O2_Step6 = GameObject.Find("Make_O2_Step6");
-        Text_Make_O2_Step7 = GameObject.Find("Make_O2_Step7");
-        Text_Make_O2_Finish = GameObject.Find("Make_O2_Step7");
+        Match_ReFire_Score = FindObjectOfType<Score>();
+        Text_Make_O2_Step1 = SceneObjectFinder.Find("Make_O2_Step1");
+        Text_Make_O2_Step2 = SceneObjectFinder.Find("Make_O2_Step2");
+        Text_Make_O2_Step3 = SceneObjectFinder.Find("Make_O2_Step3");
+        Text_Make_O2_Step4 = SceneObjectFinder.Find("Make_O2_Step4");
+        Text_Make_O2_Step5 = SceneObjectFinder.Find("Make_O2_Step5");
+        Text_Make_O2_Step6 = SceneObjectFinder.Find("Make_O2_Step6");
+        Text_Make_O2_Step7 = SceneObjectFinder.Find("Make_O2_Step7");
+        Text_Make_O2_Finish = SceneObjectFinder.Find("Make_O2_Finish");
 
-        Text_Match_ReFire_Step1 = GameObject.Find("Match_ReFire_Step1");
-        Text_Match_ReFire_Step2 = GameObject.Find("Match_ReFire_Step2");
-        Text_Match_ReFire_Step3 = GameObject.Find("Match_ReFire_Step3");
-        Text_Match_ReFire_Finish = GameObject.Find("Match_ReFire_Finish");
+        Text_Match_ReFire_Step1 = SceneObjectFinder.Find("Match_ReFire_Step1");
+        Text_Match_ReFire_Step2 = SceneObjectFinder.Find("Match_ReFire_Step2");
+        Text_Match_ReFire_Step3 = SceneObjectFinder.Find("Match_ReFire_Step3");
+        Text_Match_ReFire_Finish = SceneObjectFinder.Find("Match_ReFire_Finish");
     }
 
     // Update is called once per frame
@@ -47,18 +48,18 @@ public class Hints : MonoBehaviour
 
     public void Make_O2_Check()
     {
-        //Text_Hints.GetComponent<TMP_Text>().text = "¼ì²éÆ÷²Ä×¼±¸, ÓÃÓÒÊÖ±úÉäÏßÈ·ÈÏÊµÑéÆ÷²Ä: É××Ó Ò©Æ¿ ÑõÆøÆ¿ ¾Æ¾«µÆ ÊÔ¹Ü ÊÔ¹Ü¼Ğ Ë®Åè µ¼¹Ü";
+        //Text_Hints.GetComponent<TMP_Text>().text = "æ£€æŸ¥å™¨æå‡†å¤‡, ç”¨å³æ‰‹æŸ„å°„çº¿ç¡®è®¤å®éªŒå™¨æ: å‹ºå­ è¯ç“¶ æ°§æ°”ç“¶ é…’ç²¾ç¯ è¯•ç®¡ è¯•ç®¡å¤¹ æ°´ç›† å¯¼ç®¡";
     }
 
     public void Make_O2_Step1()
     {
-        //Text_Hints.GetComponent<TMP_Text>().text = "²½ÖèÒ»: È¡ÉÙÁ¿Ò©Æ·µ½ÓÚÒ©É×ÖĞ";
+        //Text_Hints.GetComponent<TMP_Text>().text = "æ­¥éª¤ä¸€: å–å°‘é‡è¯å“åˆ°äºè¯å‹ºä¸­";
         Text_Make_O2_Step1.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
     }
 
     public void Make_O2_Step2()
     {
-        //Text_Hints.GetComponent<TMP_Text>().text = "²½Öè¶ş: ½«Ò©É×µÄÒ©Æ··Åµ½ÊÔ¹ÜÖĞ";
+        //Text_Hints.GetComponent<TMP_Text>().text = "æ­¥éª¤äºŒ: å°†è¯å‹ºçš„è¯å“æ”¾åˆ°è¯•ç®¡ä¸­";
         Text_Make_O2_Step2.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
     }
 
@@ -66,7 +67,7 @@ public class Hints : MonoBehaviour
     {
         if (Match_ReFire_Score.Project_Num() == 1 && Match_ReFire_Score.If_Make_O2_Step2())
         {
-            //Text_Hints.GetComponent<TMP_Text>().text = "²½ÖèÈı: ½«ÊÔ¹ÜºÍÈû×ÓÁ¬½Ó";
+            //Text_Hints.GetComponent<TMP_Text>().text = "æ­¥éª¤ä¸‰: å°†è¯•ç®¡å’Œå¡å­è¿æ¥";
             Text_Make_O2_Step3.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
         }
     }
@@ -79,7 +80,7 @@ public class Hints : MonoBehaviour
     {
         if (Match_ReFire_Score.Project_Num() == 1 && Match_ReFire_Score.If_Make_O2_Step3())
         {
-            //Text_Hints.GetComponent<TMP_Text>().text = "²½ÖèËÄ: ½«ÊÔ¹Ü¿ÚºÍµ¼¹ÜÁ´½Ó";
+            //Text_Hints.GetComponent<TMP_Text>().text = "æ­¥éª¤å››: å°†è¯•ç®¡å£å’Œå¯¼ç®¡é“¾æ¥";
             Text_Make_O2_Step4.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
         }
     }
@@ -92,7 +93,7 @@ public class Hints : MonoBehaviour
     {
         if (Match_ReFire_Score.Project_Num() == 1 && Match_ReFire_Score.If_Make_O2_Step4())
         {
-            //Text_Hints.GetComponent<TMP_Text>().text = "²½ÖèÎå: ½«×°ÅäºÃµÄÊÔ¹Ü¹Ì¶¨ÔÚ¼Ü×ÓÉÏ";
+            //Text_Hints.GetComponent<TMP_Text>().text = "æ­¥éª¤äº”: å°†è£…é…å¥½çš„è¯•ç®¡å›ºå®šåœ¨æ¶å­ä¸Š";
             Text_Make_O2_Step5.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
         }
     }
@@ -105,7 +106,7 @@ public class Hints : MonoBehaviour
     {
         if (Match_ReFire_Score.Project_Num() == 1 && Match_ReFire_Score.If_Make_O2_Step5())
         {
-            //Text_Hints.GetComponent<TMP_Text>().text = "²½ÖèÁù: ÔÚÊÔ¹Üµ×Î»ÖÃ´¦ÉÏ¾Æ¾«µÆ ²¢ÓÃ»ğ²ñµãÈ¼";
+            //Text_Hints.GetComponent<TMP_Text>().text = "æ­¥éª¤å…­: åœ¨è¯•ç®¡åº•ä½ç½®å¤„ä¸Šé…’ç²¾ç¯ å¹¶ç”¨ç«æŸ´ç‚¹ç‡ƒ";
             Text_Make_O2_Step6.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
         }
     }
@@ -118,16 +119,15 @@ public class Hints : MonoBehaviour
     {
         if (Match_ReFire_Score.Project_Num() == 1 && Match_ReFire_Score.If_Make_O2_Step6())
         {
-            //Text_Hints.GetComponent<TMP_Text>().text = "²½ÖèÆß: ½«¿ÕÆ¿×Ó·ÅÔÚµ¼¹Ü³ö¿Ú»ñÈ¡ÑõÆø";
+            //Text_Hints.GetComponent<TMP_Text>().text = "æ­¥éª¤ä¸ƒ: å°†ç©ºç“¶å­æ”¾åœ¨å¯¼ç®¡å‡ºå£è·å–æ°§æ°”";
             Text_Make_O2_Step7.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
         }
     }
 
     public void Make_O2_Finish()
     {
-        if(Match_ReFire_Score.IF_Make_O2_Step8())
-            Text_Make_O2_Finish.gameObject.SetActive(true);
-        //Text_Hints.GetComponent<TMP_Text>().text = "Íê³ÉÖÆ×÷ÑõÆøÊµÑé\tÇë½«Æ÷²Ä·Å»ØÔ­Î»";
+        if (Text_Make_O2_Finish != null)
+            Text_Make_O2_Finish.SetActive(Match_ReFire_Score != null && Match_ReFire_Score.IF_Make_O2_Step8());
     }
 
 
@@ -141,30 +141,30 @@ public class Hints : MonoBehaviour
 
     public void Match_ReFire_Check()
     {
-        //Text_Hints.GetComponent<TMP_Text>().text = "¼ì²éÆ÷²Ä×¼±¸, ÓÃÓÒÊÖ±úÉäÏßÈ·ÈÏÊµÑéÆ÷²Ä: »ğ²ñ ÑõÆøÆ¿ ¾Æ¾«µÆ";
+        //Text_Hints.GetComponent<TMP_Text>().text = "æ£€æŸ¥å™¨æå‡†å¤‡, ç”¨å³æ‰‹æŸ„å°„çº¿ç¡®è®¤å®éªŒå™¨æ: ç«æŸ´ æ°§æ°”ç“¶ é…’ç²¾ç¯";
     }
 
     public void Match_ReFire_Step1()
     {
-        //Text_Hints.GetComponent<TMP_Text>().text = "²½ÖèÒ»:µãÈ¼»ğ²ñºÍ¾Æ¾«µÆ";
+        //Text_Hints.GetComponent<TMP_Text>().text = "æ­¥éª¤ä¸€:ç‚¹ç‡ƒç«æŸ´å’Œé…’ç²¾ç¯";
         Text_Match_ReFire_Step1.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
     }
 
     public void Match_ReFire_Step2()
     {
-        //Text_Hints.GetComponent<TMP_Text>().text = "²½Öè¶ş:ÓÃÁ¦Ò¡»Î»ğ²ñ,Ê¹»ğ²ñÏ¨Ãğ";
+        //Text_Hints.GetComponent<TMP_Text>().text = "æ­¥éª¤äºŒ:ç”¨åŠ›æ‘‡æ™ƒç«æŸ´,ä½¿ç«æŸ´ç†„ç­";
         Text_Match_ReFire_Step2.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
     }
 
     public void Match_ReFire_Step3()
     {
-        //Text_Hints.GetComponent<TMP_Text>().text = "²½ÖèÈı:ÔÚ5ÃëÄÚ½«´ø»ğĞÇµÄ»ğ²ñ·Åµ½ÑõÆøÆ¿ÖĞ";
+        //Text_Hints.GetComponent<TMP_Text>().text = "æ­¥éª¤ä¸‰:åœ¨5ç§’å†…å°†å¸¦ç«æ˜Ÿçš„ç«æŸ´æ”¾åˆ°æ°§æ°”ç“¶ä¸­";
         Text_Match_ReFire_Step3.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
     }
 
     public void Match_ReFire_Finish()
     {
-        if (Match_ReFire_Score.If_Match_ReFire_Step4())
-            Text_Match_ReFire_Finish.gameObject.SetActive(true);
+        if (Text_Match_ReFire_Finish != null)
+            Text_Match_ReFire_Finish.SetActive(Match_ReFire_Score != null && Match_ReFire_Score.If_Match_ReFire_Step4());
     }
 }

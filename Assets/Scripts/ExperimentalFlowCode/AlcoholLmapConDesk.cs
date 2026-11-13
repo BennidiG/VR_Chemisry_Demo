@@ -7,12 +7,14 @@ public class AlcoholLmapConDesk : MonoBehaviour
 {
     private GameObject Text_Make_O2_Step6;
 
-    Score Match_ReFire_Score = new Score();
-    MakeO2 LampIsFire = new MakeO2();
+    private Score Match_ReFire_Score;
+    private MakeO2 LampIsFire;
     // Start is called before the first frame update
     void Start()
     {
-        Text_Make_O2_Step6 = GameObject.Find("Make_O2_Step6");
+        Match_ReFire_Score = FindObjectOfType<Score>();
+        LampIsFire = FindObjectOfType<MakeO2>();
+        Text_Make_O2_Step6 = SceneObjectFinder.Find("Make_O2_Step6");
     }
 
     // Update is called once per frame
@@ -27,11 +29,10 @@ public class AlcoholLmapConDesk : MonoBehaviour
         {
             if (Match_ReFire_Score.Project_Num() == 1 && Match_ReFire_Score.If_Make_O2_Step5())
             {
-                Text_Make_O2_Step6 = GameObject.Find("Make_O2_Step6");
+                Text_Make_O2_Step6 = SceneObjectFinder.Find("Make_O2_Step6");
                 if (LampIsFire.IfLampIsFire())
                 {
-                    Text_Make_O2_Step6.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
-                    Match_ReFire_Score.Make_O2_Step5_To_Step6();
+                    LampIsFire.TryCompleteHeatingStep();
                 }
                 else {
                     Text_Make_O2_Step6.GetComponent<TMP_Text>().color = new Color(0, 0, 0, 1);
@@ -47,11 +48,10 @@ public class AlcoholLmapConDesk : MonoBehaviour
         {
             if (Match_ReFire_Score.Project_Num() == 1 && Match_ReFire_Score.If_Make_O2_Step5())
             {
-                Text_Make_O2_Step6 = GameObject.Find("Make_O2_Step6");
+                Text_Make_O2_Step6 = SceneObjectFinder.Find("Make_O2_Step6");
                 if (LampIsFire.IfLampIsFire())
                 {
-                    Text_Make_O2_Step6.GetComponent<TMP_Text>().color = new Color(0, 1, 0, 1);
-                    Match_ReFire_Score.Make_O2_Step5_To_Step6();
+                    LampIsFire.TryCompleteHeatingStep();
                 }
                 else
                 {

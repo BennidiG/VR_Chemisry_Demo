@@ -1,30 +1,46 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
-using UnityEngine.IO;
-using UnityEngine.UI;
+using TMPro;
 
 public class ReadInput : MonoBehaviour
 {
-    private GameObject T2;
-    //Assigned to the RightHand Controller
+    // Assigned to the right-hand controller.
     public XRController controller = null;
-    InputDevice device;
+
+    private InputDevice device;
+    private TMP_Text prompt;
+    private bool wasPressed;
+
     void Start()
     {
-        device = InputDevices.GetDeviceAtXRNode(controller.controllerNode);
-        T2 = GameObject.Find("Prompt");
+        if (controller != null)
+            device = InputDevices.GetDeviceAtXRNode(controller.controllerNode);
+
+        GameObject promptObject = SceneObjectFinder.Find("Prompt");
+        if (promptObject != null)
+            prompt = promptObject.GetComponent<TMP_Text>();
     }
+
     void Update()
     {
-        if (device.TryGetFeatureValue(CommonUsages.primaryButton, out bool buttonValue) && buttonValue)
+        if (controller == null)
+            return;
+
+        // XR devices may not be connected yet when Start runs.
+        if (!device.isValid)
+            device = InputDevices.GetDeviceAtXRNode(controller.controllerNode);
+
+        if (!device.TryGetFeatureValue(CommonUsages.primaryButton, out bool buttonValue))
+            return;
+
+        if (buttonValue && !wasPressed)
         {
             Debug.Log(" pressing a");
-            T2.GetComponent<Text>().text = " pressing a";
+            if (prompt != null)
+                prompt.text = " pressing a";
         }
 
+        wasPressed = buttonValue;
     }
 }
