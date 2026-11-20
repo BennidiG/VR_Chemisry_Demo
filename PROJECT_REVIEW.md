@@ -109,7 +109,7 @@
 - `Score`、`Xr_Ray`、`GetPowder`、`MakeO2` 等仍有静态字段。现在通过单实例规避了重复写入，下一步应改为明确的实验状态对象，而不是继续增加静态字段。
 - 大量触发器仍依赖游戏对象名字，如 `OnFire`、`O2IntoColl`。重命名模型或生成多个相似器材时容易出错，应逐步改成 `LabItem` 标识、序列化引用和明确事件。
 - “再开一局”目前主要重置步骤与提示，器材、药品、火焰、氧气等物理状态尚未由一个统一入口完整复位。建议提供统一的“重置实验”按钮。
-- OpenXR 设置资源仍有残留，但 manifest 未声明 `com.unity.xr.openxr`；当前 Android 使用 Oculus Loader，不能直接判定为启动故障。应在决定继续 Oculus 插件还是迁移 OpenXR 后统一清理。
+- OpenXR 残留设置与 Loader 已在 P2 清理并归档；当前 Android 保留 Oculus Loader。若迁移 OpenXR，应另开分支验证，避免与 Oculus 配置混用。
 - Oculus 设置为 MultiPass，Android 质量为 High，图形 API 为 Vulkan。它们不是静态可断定的错误，但 Quest 2 上必须实测；不要盲目同时改多项渲染设置。
 - `Test.unity` 中另有一台模型相机，是否为有意预览需在编辑器确认。
 - `ControlOffest`、`DissolveDirection`、`SimpleCameraController` 等未挂到主场景的测试脚本可另行整理，避免与正式逻辑混在一起。

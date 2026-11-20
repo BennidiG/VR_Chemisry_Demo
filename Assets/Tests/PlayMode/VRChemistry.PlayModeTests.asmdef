@@ -3,6 +3,9 @@
   "rootNamespace": "",
   "references": [
     "VRChemistry.Experiments.Core",
+    "VRChemistry.Chemistry.Core",
+    "VRChemistry.Runtime",
+    "Unity.XR.Interaction.Toolkit",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"
   ],

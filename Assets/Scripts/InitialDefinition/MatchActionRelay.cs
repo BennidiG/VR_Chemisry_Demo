@@ -9,6 +9,11 @@ public class MatchActionRelay : MonoBehaviour
 {
     private VisualEffectGraph currentMatch;
 
+    public void ResetCurrentMatch()
+    {
+        currentMatch = null;
+    }
+
     private VisualEffectGraph CurrentMatch
     {
         get

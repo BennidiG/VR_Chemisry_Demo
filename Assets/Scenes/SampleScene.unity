@@ -5633,6 +5633,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: -930000002}
+  - component: {fileID: -930000003}
+  - component: {fileID: -930000004}
+  - component: {fileID: -930000005}
   - component: {fileID: 325933856}
   - component: {fileID: 325933857}
   - component: {fileID: 325933858}
@@ -46514,9 +46517,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 139405180}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001, type: 3}
+  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  generateSurfaceCap: 1
   autoFitToRenderer: 1
   heightOverride: {x: -0.05, y: 0.05}
 --- !u!114 &-920000002
@@ -46528,9 +46532,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 209799446}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001, type: 3}
+  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  generateSurfaceCap: 1
   autoFitToRenderer: 1
   heightOverride: {x: -0.05, y: 0.05}
 --- !u!114 &-920000003
@@ -46542,9 +46547,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 219860170}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001, type: 3}
+  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  generateSurfaceCap: 1
   autoFitToRenderer: 1
   heightOverride: {x: -0.05, y: 0.05}
 --- !u!114 &-920000004
@@ -46556,9 +46562,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 438999619}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001, type: 3}
+  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  generateSurfaceCap: 1
   autoFitToRenderer: 1
   heightOverride: {x: -0.05, y: 0.05}
 --- !u!114 &-920000005
@@ -46570,9 +46577,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 695417543}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001, type: 3}
+  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  generateSurfaceCap: 1
   autoFitToRenderer: 1
   heightOverride: {x: -0.05, y: 0.05}
 --- !u!114 &-920000006
@@ -46584,9 +46592,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 719623337}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001, type: 3}
+  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  generateSurfaceCap: 0
   autoFitToRenderer: 1
   heightOverride: {x: -0.05, y: 0.05}
 --- !u!114 &-920000007
@@ -46598,9 +46607,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1113958573}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001, type: 3}
+  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  generateSurfaceCap: 1
   autoFitToRenderer: 1
   heightOverride: {x: -0.05, y: 0.05}
 --- !u!114 &-920000008
@@ -46612,9 +46622,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1352074786}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001, type: 3}
+  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  generateSurfaceCap: 1
   autoFitToRenderer: 1
   heightOverride: {x: -0.05, y: 0.05}
 --- !u!114 &-920000009
@@ -46626,9 +46637,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1612824486}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001, type: 3}
+  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  generateSurfaceCap: 1
   autoFitToRenderer: 1
   heightOverride: {x: -0.05, y: 0.05}
 --- !u!114 &-920000010
@@ -46640,9 +46652,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1793221393}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001, type: 3}
+  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  generateSurfaceCap: 1
   autoFitToRenderer: 1
   heightOverride: {x: -0.05, y: 0.05}
 --- !u!114 &-920000011
@@ -46654,9 +46667,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 134297036717116809}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001, type: 3}
+  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000001ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  generateSurfaceCap: 1
   autoFitToRenderer: 1
   heightOverride: {x: -0.05, y: 0.05}
 --- !u!114 &-930000001
@@ -46668,7 +46682,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1380754206}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000002, type: 3}
+  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000002ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &-930000002
@@ -46680,6 +46694,45 @@ MonoBehaviour:
   m_GameObject: {fileID: 325933853}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000004, type: 3}
+  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000004ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-930000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 325933853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000007ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-930000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 325933853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000015ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  applyOnAndroid: 1
+  maxWaveAmplitude: 0.001
+  maxBubbleEmission: 0.65
+--- !u!114 &-930000005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 325933853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef000000001aab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

@@ -125,7 +125,9 @@ public class MakeO2 : MonoBehaviour
             return;
 
         Hot = true;
-        if (If_Get_Powder != null && If_Get_Powder.Can_Burn())
+        bool hasReagent = If_Get_Powder != null && If_Get_Powder.Can_Burn();
+        ReactionResult result = ChemistryLegacyAdapter.EvaluateMakeOxygen(true, hasReagent, score != null && score.If_Make_O2_Step4());
+        if (result.Succeeded)
         {
             airBubbles.Play();
             SetPrompt("Chemical reaction in progress");
@@ -133,7 +135,7 @@ public class MakeO2 : MonoBehaviour
         else
         {
             airBubbles.Stop();
-            SetPrompt("No reagent in the test tube");
+            SetPrompt(hasReagent ? result.FailureReason : "No reagent in the test tube");
         }
     }
 
@@ -152,10 +154,15 @@ public class MakeO2 : MonoBehaviour
         if (If_O2Into_Bottle == null)
             return;
 
-        if (Hot && If_Get_Powder != null && If_Get_Powder.Can_Burn())
+        ReactionResult result = ChemistryLegacyAdapter.EvaluateMakeOxygen(Hot, If_Get_Powder != null && If_Get_Powder.Can_Burn(), score != null && score.If_Make_O2_Step4());
+        if (result.Succeeded)
             If_O2Into_Bottle.MakeingO2True();
         else
+        {
             If_O2Into_Bottle.MakeingO2False();
+            if (airBubbles != null)
+                airBubbles.Stop();
+        }
     }
 
     public void See_AB()

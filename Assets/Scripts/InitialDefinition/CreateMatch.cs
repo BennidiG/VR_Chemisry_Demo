@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -90,11 +91,12 @@ public class CreateMatch : MonoBehaviour
 
         IF_CreateM = true;
         Have_M = true;
+        RefreshMatchRelay();
     }
 
     public void ResetMatch()
     {
-        if (lastResetFrame == Time.frameCount && GameObject.Find("Match") != null)
+        if (lastResetFrame == Time.frameCount && Have_M && GameObject.Find("Match") != null)
             return;
         lastResetFrame = Time.frameCount;
 
@@ -127,8 +129,39 @@ public class CreateMatch : MonoBehaviour
         }
         IF_CreateM = true;
         Have_M = true;
+        RefreshMatchRelay();
+        StartCoroutine(SelectMatchAfterReset(matchCopy));
     }
 
+    private void RefreshMatchRelay()
+    {
+        MatchActionRelay relay = FindObjectOfType<MatchActionRelay>();
+        if (relay != null)
+            relay.ResetCurrentMatch();
+    }
+
+    private IEnumerator SelectMatchAfterReset(GameObject match)
+    {
+        yield return null;
+        if (match == null)
+            yield break;
+
+        XRGrabInteractable grab = match.GetComponent<XRGrabInteractable>();
+        if (grab == null)
+            yield break;
+
+        foreach (XRSocketInteractor socket in matchSockets)
+        {
+            if (socket == null)
+                continue;
+            XRInteractionManager manager = socket.interactionManager;
+            if (manager != null && socket.CanSelect(grab))
+            {
+                manager.SelectEnter(socket, grab);
+                break;
+            }
+        }
+    }
     public bool Have_Match()
     {
         return Have_M;

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using TMPro;
 
@@ -8,6 +9,8 @@ using TMPro;
 /// </summary>
 public class Score : MonoBehaviour
 {
+    public event Action LegacyStateChanged;
+
     private GameObject Text_Score;
     private Xr_Ray Hit;
     private ExperimentRunner runner;
@@ -56,9 +59,12 @@ public class Score : MonoBehaviour
     {
         runner = ExperimentRunner.GetOrCreate();
         runner.ExperimentReset += OnExperimentReset;
+        runner.ScoreChanged += RefreshScore;
+        LocalizationManager.LanguageChanged += OnLanguageChanged;
         Hit = FindObjectOfType<Xr_Ray>();
         Text_Score = GameObject.Find("Score");
         ResetLegacyState();
+        RefreshScore();
     }
 
     private void OnExperimentReset()
@@ -73,7 +79,16 @@ public class Score : MonoBehaviour
     private void OnDestroy()
     {
         if (runner != null)
+        {
             runner.ExperimentReset -= OnExperimentReset;
+            runner.ScoreChanged -= RefreshScore;
+        }
+        LocalizationManager.LanguageChanged -= OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged(Language language)
+    {
+        RefreshScore();
     }
 
     private void ResetLegacyState()
@@ -104,7 +119,6 @@ public class Score : MonoBehaviour
         If_Make_O2_Finish();
         If_Match_ReFire_Finish();
         SyncLegacyStateIfChanged();
-        CalculateScore();
     }
 
     private void SyncLegacyStateIfChanged()
@@ -113,7 +127,7 @@ public class Score : MonoBehaviour
         if (stateHash == lastLegacyStateHash)
             return;
         lastLegacyStateHash = stateHash;
-        SyncRunnerState();
+        NotifyLegacyStateChanged();
     }
 
     private int GetLegacyStateHash()
@@ -276,7 +290,7 @@ public class Score : MonoBehaviour
     public void Yes_Match_Destory()
     {
         Match_Destory = true;
-        SyncRunnerState();
+        NotifyLegacyStateChanged();
     }
     public void No_Match_Destory() { Match_Destory = false; }
     public void Yes_AlcoholLamp_On_Position() { AlcoholLamp_On_Position = true; }
@@ -366,50 +380,40 @@ public class Score : MonoBehaviour
         TestTube12_On_Position = onPosition;
     }
 
-    private void CalculateScore()
+    private void RefreshScore()
     {
-        if (Text_Score != null)
+        if (Text_Score != null && runner != null)
             Text_Score.GetComponent<TMP_Text>().text = runner.GetScoreText();
     }
 
     public void SyncRunnerState()
     {
-        if (runner == null || Project == 0 || runner.CurrentProject != Project)
-            return;
+        NotifyLegacyStateChanged();
+    }
 
-        if (Project == 1)
+    private void NotifyLegacyStateChanged()
+    {
+        LegacyStateChanged?.Invoke();
+    }
+
+    public bool IsCleanupFlag(string cleanupId)
+    {
+        switch (cleanupId)
         {
-            runner.SetStepCompletedFromLegacy("take_reagent", Make_O2_Step1);
-            runner.SetStepCompletedFromLegacy("add_to_test_tube", Make_O2_Step2);
-            runner.SetStepCompletedFromLegacy("attach_cork", Make_O2_Step3);
-            runner.SetStepCompletedFromLegacy("connect_catheter", Make_O2_Step4);
-            runner.SetStepCompletedFromLegacy("secure_test_tube", Make_O2_Step5);
-            runner.SetStepCompletedFromLegacy("heat_test_tube", Make_O2_Step6);
-            runner.SetStepCompletedFromLegacy("collect_oxygen", Make_O2_Step7);
-            runner.SetCleanupCompletedFromLegacy("all_test_tubes", AllTestTube_On_Position());
-            runner.SetCleanupCompletedFromLegacy("spoon", Spoon_On_Position);
-            runner.SetCleanupCompletedFromLegacy("drug_bottle", DrugBottle_On_Position);
-            runner.SetCleanupCompletedFromLegacy("drug_bottle_cap", DrugBottleCap_On_Position);
-            runner.SetCleanupCompletedFromLegacy("tube_clamp", TubeClamp_On_Position);
-            runner.SetCleanupCompletedFromLegacy("basin", Basin_On_Position);
-            runner.SetCleanupCompletedFromLegacy("catheter", Catheter_On_Position);
-            runner.SetCleanupCompletedFromLegacy("match_destroyed", Match_Destory);
-            runner.SetCleanupCompletedFromLegacy("alcohol_lamp", AlcoholLamp_On_Position);
-            runner.SetCleanupCompletedFromLegacy("alcohol_lamp_cap", AlcoholLampCap_On_Position);
-            runner.SetCleanupCompletedFromLegacy("glass_bottle", GlassBottle_On_Position);
-            runner.SetCleanupCompletedFromLegacy("glass_bottle_cap", GlassBottleCap_On_Position);
-            runner.SetCleanupCompletedFromLegacy("cork", LabItemRegistry.IsAtHome(LabItemType.Cork));
-        }
-        else if (Project == 2)
-        {
-            runner.SetStepCompletedFromLegacy("ignite_match_and_lamp", Match_ReFire_Step1);
-            runner.SetStepCompletedFromLegacy("extinguish_match_keep_ember", Match_ReFire_Step2);
-            runner.SetStepCompletedFromLegacy("refire_in_oxygen", Match_ReFire_Step3);
-            runner.SetCleanupCompletedFromLegacy("match_destroyed", Match_Destory);
-            runner.SetCleanupCompletedFromLegacy("alcohol_lamp", AlcoholLamp_On_Position);
-            runner.SetCleanupCompletedFromLegacy("alcohol_lamp_cap", AlcoholLampCap_On_Position);
-            runner.SetCleanupCompletedFromLegacy("glass_bottle", GlassBottle_On_Position);
-            runner.SetCleanupCompletedFromLegacy("glass_bottle_cap", GlassBottleCap_On_Position);
+            case "all_test_tubes": return AllTestTube_On_Position();
+            case "spoon": return Spoon_On_Position;
+            case "drug_bottle": return DrugBottle_On_Position;
+            case "drug_bottle_cap": return DrugBottleCap_On_Position;
+            case "tube_clamp": return TubeClamp_On_Position;
+            case "basin": return Basin_On_Position;
+            case "catheter": return Catheter_On_Position;
+            case "match_destroyed": return Match_Destory;
+            case "alcohol_lamp": return AlcoholLamp_On_Position;
+            case "alcohol_lamp_cap": return AlcoholLampCap_On_Position;
+            case "glass_bottle": return GlassBottle_On_Position;
+            case "glass_bottle_cap": return GlassBottleCap_On_Position;
+            case "cork": return LabItemRegistry.IsAtHome(LabItemType.Cork);
+            default: return false;
         }
     }
 
@@ -433,13 +437,13 @@ public class Score : MonoBehaviour
             case "extinguish_match_keep_ember": Yes_Match_ReFire_Step2(); break;
             case "refire_in_oxygen": Yes_Match_ReFire_Step3(); break;
         }
-        SyncRunnerState();
+        NotifyLegacyStateChanged();
     }
 
     public void DebugClearCleanup()
     {
         ClearCleanupProgress();
-        SyncRunnerState();
+        NotifyLegacyStateChanged();
     }
 
     private void ClearCleanupProgress()
@@ -456,7 +460,7 @@ public class Score : MonoBehaviour
         AlcoholLampCap_On_Position = false;
         GlassBottle_On_Position = false;
         GlassBottleCap_On_Position = false;
-        SyncRunnerState();
+        NotifyLegacyStateChanged();
     }
 
     public void DebugCompleteNextCleanup()
@@ -471,7 +475,7 @@ public class Score : MonoBehaviour
             DebugSetCleanup(criterion.cleanupId);
             break;
         }
-        SyncRunnerState();
+        NotifyLegacyStateChanged();
     }
 
     private void DebugSetCleanup(string cleanupId)

@@ -4,18 +4,35 @@ using UnityEngine;
 public static class LabItemRegistry
 {
     private static readonly List<LabItem> items = new List<LabItem>();
+    private static LabItem[] cachedItems = new LabItem[0];
+    private static bool cacheDirty = true;
 
-    public static LabItem[] ActiveItems => items.ToArray();
+    public static LabItem[] ActiveItems
+    {
+        get
+        {
+            if (cacheDirty)
+            {
+                cachedItems = items.ToArray();
+                cacheDirty = false;
+            }
+            return cachedItems;
+        }
+    }
 
     public static void Register(LabItem item)
     {
         if (!items.Contains(item))
+        {
             items.Add(item);
+            cacheDirty = true;
+        }
     }
 
     public static void Unregister(LabItem item)
     {
-        items.Remove(item);
+        if (items.Remove(item))
+            cacheDirty = true;
     }
 
     public static bool IsAtHome(LabItemType itemType)
@@ -42,8 +59,8 @@ public static class LabItemRegistry
 }
 
 /// <summary>
-/// Identifies an interactable laboratory item and provides per-material-slot
-/// property-block highlights without creating material instances.
+/// Identifies an interactable laboratory item and delegates shared material
+/// state to LabMaterialState, including per-slot highlight ownership.
 /// </summary>
 public class LabItem : MonoBehaviour
 {
@@ -54,11 +71,9 @@ public class LabItem : MonoBehaviour
     private Vector3 homePosition;
     private Renderer[] renderers;
     private Material[][] sharedMaterials;
-    private Color[][] baseColors;
-    private MaterialPropertyBlock[][] originalBlocks;
-    private MaterialPropertyBlock[][] workingBlocks;
     private bool highlighted;
     private Color highlightColor;
+    private float nextHighlightUpdate;
 
     private void Awake()
     {
@@ -91,6 +106,14 @@ public class LabItem : MonoBehaviour
         LabItemRegistry.Unregister(this);
     }
 
+    private void OnDestroy()
+    {
+        if (renderers == null)
+            return;
+        foreach (Renderer renderer in renderers)
+            LabMaterialState.ClearRenderer(renderer);
+    }
+
     public void SetHighlight(Color? color)
     {
         if (!color.HasValue)
@@ -119,49 +142,21 @@ public class LabItem : MonoBehaviour
 
         renderers = meshRenderers.ToArray();
         sharedMaterials = new Material[renderers.Length][];
-        baseColors = new Color[renderers.Length][];
-        originalBlocks = new MaterialPropertyBlock[renderers.Length][];
-        workingBlocks = new MaterialPropertyBlock[renderers.Length][];
-
         for (int rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
-        {
-            Renderer renderer = renderers[rendererIndex];
-            Material[] materials = renderer.sharedMaterials;
-            sharedMaterials[rendererIndex] = materials;
-            baseColors[rendererIndex] = new Color[materials.Length];
-            originalBlocks[rendererIndex] = new MaterialPropertyBlock[materials.Length];
-            workingBlocks[rendererIndex] = new MaterialPropertyBlock[materials.Length];
-
-            for (int materialIndex = 0; materialIndex < materials.Length; materialIndex++)
-            {
-                Material material = materials[materialIndex];
-                baseColors[rendererIndex][materialIndex] = GetBaseColor(material);
-                originalBlocks[rendererIndex][materialIndex] = new MaterialPropertyBlock();
-                workingBlocks[rendererIndex][materialIndex] = new MaterialPropertyBlock();
-                renderer.GetPropertyBlock(originalBlocks[rendererIndex][materialIndex], materialIndex);
-            }
-        }
+            sharedMaterials[rendererIndex] = renderers[rendererIndex].sharedMaterials;
     }
 
     private void Update()
     {
-        if (!highlighted || renderers == null)
+        if (!highlighted || renderers == null || Time.unscaledTime < nextHighlightUpdate)
             return;
+        nextHighlightUpdate = Time.unscaledTime + 1F / 30F;
 
         float pulse = 0.5F + 0.5F * Mathf.Sin(Time.unscaledTime * 4F);
         for (int rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
         {
             for (int materialIndex = 0; materialIndex < sharedMaterials[rendererIndex].Length; materialIndex++)
-            {
-                MaterialPropertyBlock block = workingBlocks[rendererIndex][materialIndex];
-                renderers[rendererIndex].GetPropertyBlock(block, materialIndex);
-                Color baseColor = Color.Lerp(baseColors[rendererIndex][materialIndex], highlightColor, 0.25F + pulse * 0.35F);
-                baseColor.a = baseColors[rendererIndex][materialIndex].a;
-                block.SetColor("_BaseColor", baseColor);
-                block.SetColor("_Color", baseColor);
-                block.SetColor("_EmissionColor", highlightColor * (0.3F + pulse * 0.8F));
-                renderers[rendererIndex].SetPropertyBlock(block, materialIndex);
-            }
+                LabMaterialState.ApplyHighlight(renderers[rendererIndex], materialIndex, this, highlightColor, pulse);
         }
     }
 
@@ -169,11 +164,8 @@ public class LabItem : MonoBehaviour
     {
         if (renderers == null)
             return;
-        for (int rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
-        {
-            for (int materialIndex = 0; materialIndex < sharedMaterials[rendererIndex].Length; materialIndex++)
-                renderers[rendererIndex].SetPropertyBlock(originalBlocks[rendererIndex][materialIndex], materialIndex);
-        }
+        foreach (Renderer renderer in renderers)
+            LabMaterialState.ClearHighlight(renderer, this);
     }
 
     private bool ShouldUseRenderer(Renderer renderer)
@@ -191,21 +183,12 @@ public class LabItem : MonoBehaviour
         }
 
         string objectName = renderer.gameObject.name;
-        if (objectName.StartsWith("Powder") || objectName.StartsWith("Disslpate") || objectName.Contains("Socket"))
+        if (objectName.StartsWith("Powder") || objectName.StartsWith("Disslpate") || objectName.StartsWith("LiquidCap") || objectName.Contains("Socket"))
             return false;
         if (objectName == "Drug" || objectName == "Water" || objectName == "Mars" || objectName == "OnFire" || objectName == "LampCapT")
             return false;
         if (objectName.EndsWith("Coll") || objectName.EndsWith("Trigger") || objectName.EndsWith("Tirgger"))
             return false;
         return true;
-    }
-
-    private static Color GetBaseColor(Material material)
-    {
-        if (material.HasProperty("_BaseColor"))
-            return material.GetColor("_BaseColor");
-        if (material.HasProperty("_Color"))
-            return material.GetColor("_Color");
-        return Color.white;
     }
 }

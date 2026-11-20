@@ -23,7 +23,6 @@ public class VisualEffectGraph : MonoBehaviour
     private Renderer marsRenderer;
     private Renderer dissolveBodyRenderer;
     private MeshRenderer My_RDisslpate;
-    private MaterialPropertyBlock dissolveProperties;
 
     private TMP_Text responseText;
     private TMP_Text promptText;
@@ -45,6 +44,8 @@ public class VisualEffectGraph : MonoBehaviour
     private float O2ParticleCount;
     private float Off;
     private float Dissposition;
+    private float nextOxygenTextRefresh;
+    private bool oxygenTextDirty;
     private readonly System.Random random = new System.Random();
 
     void Start()
@@ -71,6 +72,8 @@ public class VisualEffectGraph : MonoBehaviour
         O2ParticleCount = oxygenSupply != null ? oxygenSupply.Amount : 0F;
         Off = 0.500001F;
         Dissposition = 0.600001F;
+        oxygenTextDirty = true;
+        nextOxygenTextRefresh = 0F;
 
         Fire.Stop();
         ReFire.Stop();
@@ -95,7 +98,6 @@ public class VisualEffectGraph : MonoBehaviour
         ReFire = transform.Find("ReFire").GetComponent<VisualEffect>();
         Smoke = transform.Find("Smoke").GetComponent<VisualEffect>();
         My_RDisslpate = transform.Find("Disslpate").GetComponent<MeshRenderer>();
-        dissolveProperties = new MaterialPropertyBlock();
         marsRenderer = Mars.GetComponent<Renderer>();
         dissolveBodyRenderer = DisslpateBody.GetComponent<Renderer>();
     }
@@ -117,9 +119,18 @@ public class VisualEffectGraph : MonoBehaviour
 
     void Update()
     {
-        Particle_Number();
-        Short_Stick();
-        DisslpateCount();
+        if (oxygenTextDirty && Time.unscaledTime >= nextOxygenTextRefresh)
+        {
+            nextOxygenTextRefresh = Time.unscaledTime + 0.1F;
+            oxygenTextDirty = false;
+            UpdateOxygenText("O2 Particle Count :");
+        }
+        if (Flag == 1 || aliveParticleCount > 0)
+            Particle_Number();
+        if (Is_fire == 1 || Is_refire == 1)
+            Short_Stick();
+        if (DissAdd || Is_fire == 1 || Is_refire == 1)
+            DisslpateCount();
         if (DestroyDiss)
             DestroyDisslpate();
         OutSpeed();
@@ -127,13 +138,16 @@ public class VisualEffectGraph : MonoBehaviour
 
     void Particle_Number()
     {
+        int targetMin = Application.platform == RuntimePlatform.Android ? 150 : 450;
+        int targetMax = Application.platform == RuntimePlatform.Android ? 390 : 790;
+        int upperLimit = Application.platform == RuntimePlatform.Android ? 400 : 820;
         if (Flag == 1)
         {
-            if (aliveParticleCount < 450)
+            if (aliveParticleCount < targetMin)
                 aliveParticleCount += random.Next(-1, 4);
-            else if (aliveParticleCount > 820)
+            else if (aliveParticleCount > upperLimit)
                 aliveParticleCount -= random.Next(-1, 3);
-            else if (aliveParticleCount < 790)
+            else if (aliveParticleCount < targetMax)
                 aliveParticleCount += random.Next(-1, 3);
             else
                 aliveParticleCount += random.Next(-2, 2);
@@ -220,10 +234,7 @@ public class VisualEffectGraph : MonoBehaviour
             DissAdd = true;
         }
 
-        My_RDisslpate.GetPropertyBlock(dissolveProperties);
-        dissolveProperties.SetFloat("Offest", Dissposition - 0.2F);
-        dissolveProperties.SetFloat("Disslpate", Dissposition);
-        My_RDisslpate.SetPropertyBlock(dissolveProperties);
+        LabMaterialState.SetDissolve(My_RDisslpate, Dissposition - 0.2F, Dissposition);
     }
 
     public void startfire()
@@ -286,9 +297,10 @@ public class VisualEffectGraph : MonoBehaviour
             return;
         }
 
-        if (Can_refire != 1 || (oxygenSupply != null ? oxygenSupply.Amount <= 0F : O2ParticleCount <= 0))
+        ReactionResult refireResult = ChemistryLegacyAdapter.EvaluateMatchRefire(Can_refire == 1, oxygenSupply != null ? oxygenSupply.Amount : O2ParticleCount);
+        if (!refireResult.Succeeded)
         {
-            SetPrompt("Cannot restart fire: no oxygen or the ember is cold");
+            SetPrompt(refireResult.FailureReason);
             return;
         }
 
@@ -370,10 +382,7 @@ public class VisualEffectGraph : MonoBehaviour
         if (Dissposition > 0.1F)
         {
             Dissposition = Mathf.Max(0.1F, Dissposition - 0.06F * Time.deltaTime);
-            My_RDisslpate.GetPropertyBlock(dissolveProperties);
-        dissolveProperties.SetFloat("Offest", Dissposition - 0.2F);
-            dissolveProperties.SetFloat("Disslpate", Dissposition);
-            My_RDisslpate.SetPropertyBlock(dissolveProperties);
+            LabMaterialState.SetDissolve(My_RDisslpate, Dissposition - 0.2F, Dissposition);
         }
         else
         {
@@ -421,7 +430,7 @@ public class VisualEffectGraph : MonoBehaviour
         {
             O2ParticleCount = Mathf.Min(MaxOxygen, O2ParticleCount + OxygenPerSecond * Time.fixedDeltaTime);
         }
-        UpdateOxygenText("Making O2: Particle Count :");
+        oxygenTextDirty = true;
     }
 
     public void Start_ReFireStick()
@@ -436,6 +445,7 @@ public class VisualEffectGraph : MonoBehaviour
             O2ParticleCount = MaxOxygen;
         }
         UpdateOxygenText("Making O2: Particle Count :");
+        oxygenTextDirty = false;
     }
 
     public bool IfFire()
@@ -446,13 +456,14 @@ public class VisualEffectGraph : MonoBehaviour
     private void OnOxygenAmountChanged(float amount)
     {
         O2ParticleCount = amount;
-        UpdateOxygenText("O2 Particle Count :");
+        oxygenTextDirty = true;
     }
 
     private void OnDestroy()
     {
         if (oxygenSupply != null)
             oxygenSupply.AmountChanged -= OnOxygenAmountChanged;
+        LabMaterialState.ClearRenderer(My_RDisslpate);
         if (runner != null)
             runner.ExperimentReset -= OnExperimentReset;
     }
@@ -475,6 +486,7 @@ public class VisualEffectGraph : MonoBehaviour
         O2ParticleCount = oxygenSupply != null ? oxygenSupply.Amount : 0F;
         Off = 0.500001F;
         Dissposition = 0.600001F;
+        oxygenTextDirty = true;
         if (matchBody != null)
         {
             matchBody.velocity = Vector3.zero;

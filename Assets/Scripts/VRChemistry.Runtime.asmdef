@@ -1,0 +1,25 @@
+{
+  "name": "VRChemistry.Runtime",
+  "rootNamespace": "",
+  "references": [
+    "VRChemistry.Chemistry.Core",
+    "VRChemistry.Experiments.Core",
+    "Unity.XR.Interaction.Toolkit",
+    "Unity.XR.CoreUtils",
+    "Unity.XR.Management",
+    "Unity.InputSystem",
+    "Unity.VisualEffectGraph",
+    "Unity.TextMeshPro",
+    "UnityEngine.UI",
+    "Unity.RenderPipelines.Universal.Runtime"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

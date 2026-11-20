@@ -17,7 +17,14 @@ public class ExperimentGuidanceController : MonoBehaviour
     private TMP_Text contentText;
     private readonly Dictionary<LabItem, Color> highlightedItems = new Dictionary<LabItem, Color>();
     private readonly Dictionary<string, TMP_Text> stepTextCache = new Dictionary<string, TMP_Text>();
+    private readonly Dictionary<LabItemType, Color> highlightTargets = new Dictionary<LabItemType, Color>();
+    private readonly List<LabItem> itemsToRemove = new List<LabItem>();
+    private readonly List<string> confirmedItems = new List<string>();
+    private readonly List<string> missingItems = new List<string>();
+    private readonly List<string> pendingItems = new List<string>();
+    private readonly StringBuilder contentBuilder = new StringBuilder();
     private float nextRefresh;
+    private bool guidanceDirty = true;
 
     private void Start()
     {
@@ -68,7 +75,10 @@ public class ExperimentGuidanceController : MonoBehaviour
         if (Time.unscaledTime >= nextRefresh)
         {
             nextRefresh = Time.unscaledTime + 0.2F;
-            RefreshGuidance();
+            if (runner.CurrentDefinition != null && !guidanceDirty)
+                UpdateHighlights(runner.CurrentDefinition);
+            if (guidanceDirty || runner.Phase == ExperimentPhase.Preparing)
+                RefreshGuidance();
         }
     }
 
@@ -88,16 +98,17 @@ public class ExperimentGuidanceController : MonoBehaviour
         }
     }
 
-    private void OnExperimentChanged(ExperimentDefinition definition) { RefreshGuidance(); }
-    private void OnModeChanged(ExperimentMode mode) { RefreshGuidance(); }
-    private void OnPhaseChanged(ExperimentPhase phase) { RefreshGuidance(); }
-    private void OnStepChanged(ExperimentStepDefinition step, bool completed) { RefreshGuidance(); }
-    private void OnCleanupChanged(CleanupCriterion criterion, bool completed) { RefreshGuidance(); }
-    private void OnEquipmentChanged(LabItemType itemType, bool onPosition) { RefreshGuidance(); }
-    private void OnLanguageChanged(Language language) { RefreshGuidance(); }
+    private void OnExperimentChanged(ExperimentDefinition definition) { guidanceDirty = true; RefreshGuidance(); }
+    private void OnModeChanged(ExperimentMode mode) { guidanceDirty = true; RefreshGuidance(); }
+    private void OnPhaseChanged(ExperimentPhase phase) { guidanceDirty = true; RefreshGuidance(); }
+    private void OnStepChanged(ExperimentStepDefinition step, bool completed) { guidanceDirty = true; RefreshGuidance(); }
+    private void OnCleanupChanged(CleanupCriterion criterion, bool completed) { guidanceDirty = true; RefreshGuidance(); }
+    private void OnEquipmentChanged(LabItemType itemType, bool onPosition) { guidanceDirty = true; RefreshGuidance(); }
+    private void OnLanguageChanged(Language language) { guidanceDirty = true; RefreshGuidance(); }
 
     public void RefreshGuidance()
     {
+        guidanceDirty = false;
         if (runner == null || hints == null)
             return;
 
@@ -166,8 +177,10 @@ public class ExperimentGuidanceController : MonoBehaviour
     private void ShowPreparation(ExperimentDefinition definition)
     {
         SetTitle(definition.GetName() + LocalizationManager.Get("｜器材准备", " | Preparation"));
-        List<string> confirmed = new List<string>();
-        List<string> missing = new List<string>();
+        List<string> confirmed = confirmedItems;
+        confirmed.Clear();
+        List<string> missing = missingItems;
+        missing.Clear();
         foreach (LabItemType itemType in definition.requiredEquipment)
         {
             if (runner.IsEquipmentOnPosition(itemType))
@@ -176,7 +189,8 @@ public class ExperimentGuidanceController : MonoBehaviour
                 missing.Add(LocalizationManager.GetItemName(itemType));
         }
 
-        StringBuilder content = new StringBuilder();
+        StringBuilder content = contentBuilder;
+        content.Clear();
         content.AppendLine(definition.GetDescription());
         content.AppendLine(LocalizationManager.Get("将所需器材移动到左侧实验台。", "Move the required items to the left laboratory desk."));
         content.AppendLine(LocalizationManager.Get("已确认：", "Confirmed: ") + (confirmed.Count > 0 ? string.Join("、", confirmed) : LocalizationManager.Get("无", "None")));
@@ -196,7 +210,8 @@ public class ExperimentGuidanceController : MonoBehaviour
 
         int completed = CountCompletedSteps(definition);
         SetTitle(definition.GetName() + LocalizationManager.Get("｜进行中 ", " | In progress ") + completed + "/" + definition.steps.Length);
-        StringBuilder content = new StringBuilder();
+        StringBuilder content = contentBuilder;
+        content.Clear();
         content.AppendLine(step.GetTitle());
         content.AppendLine(step.GetInstruction());
         string safetyNote = step.GetSafetyNote();
@@ -208,14 +223,16 @@ public class ExperimentGuidanceController : MonoBehaviour
     private void ShowCleanup(ExperimentDefinition definition)
     {
         SetTitle(definition.GetName() + LocalizationManager.Get("｜器材归位", " | Cleanup"));
-        List<string> pending = new List<string>();
+        List<string> pending = pendingItems;
+        pending.Clear();
         foreach (CleanupCriterion criterion in definition.cleanupCriteria)
         {
             if (!runner.IsCleanupCompleted(criterion.cleanupId))
                 pending.Add(criterion.GetName());
         }
 
-        StringBuilder content = new StringBuilder();
+        StringBuilder content = contentBuilder;
+        content.Clear();
         content.AppendLine(LocalizationManager.Get("主要步骤已完成，请将器材归位。", "The main procedure is complete. Return all items to their places."));
         content.AppendLine(LocalizationManager.Get("待归位：", "Remaining: ") + (pending.Count > 0 ? string.Join("、", pending) : LocalizationManager.Get("无", "None")));
         content.AppendLine(LocalizationManager.Get("橙色高亮表示仍需处理的器材。", "Items highlighted in orange still need attention."));
@@ -254,7 +271,8 @@ public class ExperimentGuidanceController : MonoBehaviour
 
     private void UpdateHighlights(ExperimentDefinition definition)
     {
-        Dictionary<LabItemType, Color> targets = new Dictionary<LabItemType, Color>();
+        Dictionary<LabItemType, Color> targets = highlightTargets;
+        targets.Clear();
         if (runner.CurrentMode == ExperimentMode.Guided && runner.Phase == ExperimentPhase.Preparing)
         {
             foreach (LabItemType itemType in definition.requiredEquipment)
@@ -288,7 +306,8 @@ public class ExperimentGuidanceController : MonoBehaviour
                 highlightedItems[item] = color;
         }
 
-        List<LabItem> toRemove = new List<LabItem>();
+        List<LabItem> toRemove = itemsToRemove;
+        toRemove.Clear();
         foreach (KeyValuePair<LabItem, Color> pair in highlightedItems)
         {
             if (pair.Key == null || !pair.Key.isActiveAndEnabled || !targets.ContainsKey(pair.Key.itemType))

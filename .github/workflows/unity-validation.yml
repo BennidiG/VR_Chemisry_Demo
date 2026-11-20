@@ -1,0 +1,46 @@
+name: Unity validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip_build:
+        description: Skip Android build after validation
+        required: false
+        default: false
+        type: boolean
+      release:
+        description: Require a signed Android build
+        required: false
+        default: false
+        type: boolean
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: self-hosted
+    env:
+      UNITY_PATH: ${{ vars.UNITY_PATH }}
+      PROJECT_PATH: ${{ github.workspace }}
+      SKIP_BUILD: ${{ inputs.skip_build || false }}
+      RELEASE_BUILD: ${{ inputs.release || false }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Unity project
+        shell: pwsh
+        run: |
+          $skip = [System.Convert]::ToBoolean($env:SKIP_BUILD)
+          $release = [System.Convert]::ToBoolean($env:RELEASE_BUILD)
+          ./Tools/run_unity_validation.ps1 -UnityPath $env:UNITY_PATH -ProjectPath $env:PROJECT_PATH -SkipBuild:$skip -Release:$release
+
+      - name: Upload validation logs and APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vr-chemistry-validation
+          if-no-files-found: ignore
+          path: |
+            Logs/CI/
+            Build/Android/*.apk

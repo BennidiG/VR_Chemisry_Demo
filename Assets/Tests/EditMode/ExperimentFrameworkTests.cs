@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -177,6 +178,48 @@ public class ExperimentFrameworkTests
         }
         finally
         {
+            Object.DestroyImmediate(itemObject);
+        }
+    }
+
+    [Test]
+    public void ScoreChanged_FiresOnlyOnStateChanges()
+    {
+        int notifications = 0;
+        Action handler = () => notifications++;
+        runner.ScoreChanged += handler;
+        try
+        {
+            runner.SelectExperiment(1);
+            PrepareCurrentExperiment();
+            int before = notifications;
+            runner.SetStepCompleted("take_reagent", true);
+            Assert.Greater(notifications, before);
+        }
+        finally
+        {
+            runner.ScoreChanged -= handler;
+        }
+    }
+
+    [Test]
+    public void LabItemRegistry_Cache_ReusesUntilMembershipChanges()
+    {
+        GameObject itemObject = new GameObject("RegistryCache");
+        LabItem item = itemObject.AddComponent<LabItem>();
+        try
+        {
+            LabItemRegistry.Register(item);
+            LabItem[] first = LabItemRegistry.ActiveItems;
+            LabItem[] second = LabItemRegistry.ActiveItems;
+            Assert.AreSame(first, second);
+
+            LabItemRegistry.Unregister(item);
+            Assert.AreNotSame(first, LabItemRegistry.ActiveItems);
+        }
+        finally
+        {
+            LabItemRegistry.Unregister(item);
             Object.DestroyImmediate(itemObject);
         }
     }

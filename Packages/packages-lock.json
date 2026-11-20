@@ -165,26 +165,6 @@
       },
       "url": "https://packages.unity.cn"
     },
-    "com.unity.xr.arfoundation": {
-      "version": "4.1.9",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.xr.arsubsystems": "4.1.9",
-        "com.unity.xr.management": "4.0.1",
-        "com.unity.modules.particlesystem": "1.0.0"
-      },
-      "url": "https://packages.unity.cn"
-    },
-    "com.unity.xr.arsubsystems": {
-      "version": "4.1.9",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.subsystemregistration": "1.1.0"
-      },
-      "url": "https://packages.unity.cn"
-    },
     "com.unity.xr.core-utils": {
       "version": "2.0.0",
       "depth": 1,

@@ -11,6 +11,8 @@ public class ExperimentDebugController : MonoBehaviour
     private Score score;
     private Xr_Ray preparation;
     private ReG reset;
+    private LabPerformanceMonitor performanceMonitor;
+    private LabPerformanceBudget performanceBudget;
 
     private void Start()
     {
@@ -18,6 +20,14 @@ public class ExperimentDebugController : MonoBehaviour
         score = FindObjectOfType<Score>();
         preparation = FindObjectOfType<Xr_Ray>();
         reset = FindObjectOfType<ReG>();
+        performanceMonitor = GetComponent<LabPerformanceMonitor>();
+        if (performanceMonitor == null)
+            performanceMonitor = gameObject.AddComponent<LabPerformanceMonitor>();
+        performanceMonitor.autoStart = false;
+        performanceBudget = GetComponent<LabPerformanceBudget>();
+        if (performanceBudget == null)
+            performanceBudget = gameObject.AddComponent<LabPerformanceBudget>();
+        performanceBudget.applyOnAndroid = false;
     }
 
     private void Update()
@@ -40,6 +50,10 @@ public class ExperimentDebugController : MonoBehaviour
             ExperimentRunner.GetOrCreate().CycleMode();
         else if (Keyboard.current.lKey.wasPressedThisFrame)
             LocalizationManager.ToggleLanguage();
+        else if (Keyboard.current.f8Key.wasPressedThisFrame)
+            performanceBudget.ToggleProfile();
+        else if (Keyboard.current.f9Key.wasPressedThisFrame)
+            performanceMonitor.BeginSample();
         else if (Keyboard.current.rKey.wasPressedThisFrame && reset != null)
             reset.Click();
 #endif

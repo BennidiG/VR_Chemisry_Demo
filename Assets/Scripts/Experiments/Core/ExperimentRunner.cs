@@ -37,6 +37,7 @@ public class ExperimentRunner : MonoBehaviour
     public ExperimentDefinition CurrentDefinition { get; private set; }
     public ExperimentPhase Phase { get; private set; } = ExperimentPhase.None;
     public bool ShouldResetOxygen { get; private set; }
+    public int ExperimentRunId { get; private set; }
     public ExperimentMode CurrentMode { get; private set; } = ExperimentMode.Guided;
     public int CurrentProject => CurrentDefinition != null ? CurrentDefinition.projectNumber : 0;
 
@@ -47,6 +48,7 @@ public class ExperimentRunner : MonoBehaviour
     public event Action<CleanupCriterion, bool> CleanupChanged;
     public event Action<LabItemType, bool> EquipmentPlacementChanged;
     public event Action ExperimentReset;
+    public event Action ScoreChanged;
 
     public ExperimentStepDefinition CurrentStep
     {
@@ -117,6 +119,7 @@ public class ExperimentRunner : MonoBehaviour
             return;
         }
 
+        ExperimentRunId++;
         ShouldResetOxygen = resetOxygenNextSelection || CurrentProject != projectNumber;
         CurrentDefinition = definition;
         completedSteps.Clear();
@@ -128,16 +131,20 @@ public class ExperimentRunner : MonoBehaviour
         ExperimentReset?.Invoke();
         ExperimentSelected?.Invoke(definition);
         PhaseChanged?.Invoke(Phase);
+        ScoreChanged?.Invoke();
 
-        if (ShouldResetOxygen && CurrentProject == 2 && OxygenSupply.Instance != null)
-            OxygenSupply.Instance.InitializeForExperiment();
+        if (OxygenSupply.Instance != null)
+            OxygenSupply.Instance.InitializeForExperiment(ExperimentRunId, CurrentProject == 2);
     }
 
     public void SetEquipmentOnPosition(LabItemType itemType, bool onPosition)
     {
         bool changed = onPosition ? equipmentOnPosition.Add(itemType) : equipmentOnPosition.Remove(itemType);
         if (changed)
+        {
             EquipmentPlacementChanged?.Invoke(itemType, onPosition);
+            ScoreChanged?.Invoke();
+        }
     }
 
     public void SetMode(ExperimentMode mode)
@@ -146,6 +153,7 @@ public class ExperimentRunner : MonoBehaviour
             return;
         CurrentMode = mode;
         ModeChanged?.Invoke(mode);
+        ScoreChanged?.Invoke();
     }
 
     public void CycleMode()
@@ -175,7 +183,10 @@ public class ExperimentRunner : MonoBehaviour
     {
         if (CurrentDefinition == null || !AreRequiredEquipmentReady())
             return;
+        bool changed = !prepared;
         prepared = true;
+        if (changed)
+            ScoreChanged?.Invoke();
         RecalculatePhase();
     }
 
@@ -206,6 +217,7 @@ public class ExperimentRunner : MonoBehaviour
         if (changed)
         {
             StepChanged?.Invoke(step, completed);
+            ScoreChanged?.Invoke();
             RecalculatePhase();
         }
     }
@@ -252,6 +264,7 @@ public class ExperimentRunner : MonoBehaviour
         if (changed)
         {
             CleanupChanged?.Invoke(criterion, completed);
+            ScoreChanged?.Invoke();
             RecalculatePhase();
         }
     }
@@ -317,6 +330,8 @@ public class ExperimentRunner : MonoBehaviour
         {
             ShouldResetOxygen = true;
             ExperimentReset?.Invoke();
+            if (OxygenSupply.Instance != null)
+                OxygenSupply.Instance.ResetSupply();
         }
         resetOxygenNextSelection = false;
     }
@@ -345,6 +360,7 @@ public class ExperimentRunner : MonoBehaviour
             return;
         Phase = newPhase;
         PhaseChanged?.Invoke(Phase);
+        ScoreChanged?.Invoke();
     }
 
     private void ValidateDefinitions()

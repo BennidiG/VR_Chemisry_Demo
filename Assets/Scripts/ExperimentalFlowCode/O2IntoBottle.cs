@@ -44,12 +44,12 @@ public class O2IntoBottle : MonoBehaviour
             return;
 
         TryCompleteCollectionStep();
-        O2Count.AddOxygen(60F * Time.fixedDeltaTime);
+        ChemistryLegacyAdapter.AddProducedOxygen(O2Count, Time.fixedDeltaTime, Match_ReFire_Score != null && Match_ReFire_Score.If_Make_O2_Step4());
     }
 
     private bool CanCollectOxygen()
     {
-        return MakeingO2 && Match_ReFire_Score != null && Match_ReFire_Score.Project_Num() == 1 && Match_ReFire_Score.If_Make_O2_Step6() && O2Count != null;
+        return MakeingO2 && Match_ReFire_Score != null && Match_ReFire_Score.Project_Num() == 1 && Match_ReFire_Score.If_Make_O2_Step4() && Match_ReFire_Score.If_Make_O2_Step6() && O2Count != null;
     }
 
     private void TryCompleteCollectionStep()
@@ -86,7 +86,5 @@ public class O2IntoBottle : MonoBehaviour
     private void OnExperimentReset()
     {
         MakeingO2 = false;
-        if (runner.ShouldResetOxygen)
-            ResetForExperiment();
     }
 }

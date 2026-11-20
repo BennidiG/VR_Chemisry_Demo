@@ -22,7 +22,7 @@
 | 材质实例 | 高亮、液体、Wobble 仍使用 `renderer.material(s)`；`MaterialPropertyBlock` 使用数为 0 |
 | 新自定义 Shader | 未声明 `UnityPerMaterial`，因此不能使用 SRP Batcher |
 | 模型重点 | `TestTubeRack.fbx` 约 32.5 MB、场景引用 46 次、未启用网格压缩、允许导入动画 |
-| 测试 | 9 个核心 EditMode + 4 个 PlayMode 场景测试，未覆盖完整场景/XR/Shader；本环境未实际运行 Unity Test Runner |
+| 测试 | 37 个 EditMode + 11 个 PlayMode（含 26 个化学核心和 3 个化学集成测试），未覆盖完整场景/XR/Shader；本环境未实际运行 Unity Test Runner |
 
 ## 2. 优先级总表
 
@@ -132,7 +132,7 @@ Unity.exe -batchmode -projectPath <project> -buildTarget Android -quit -logFile 
 
 `Packages/manifest.json` 仍包含 ARFoundation、Timeline、Collab 和多个 IDE 包。AR 功能在当前桌面式 VR 化学实验室中没有明显用途，建议确认后移除 ARFoundation；Timeline 若未使用也移除。IDE 包主要影响开发环境，可按团队工具链保留。
 
-`EditorBuildSettings.asset` 保留 OpenXR 配置引用，但 manifest 没有 `com.unity.xr.openxr`。应明确选择：
+`EditorBuildSettings.asset` 的 OpenXR 配置和 OpenXR Loader 已在 P2 清理并归档；当前保留 Oculus Loader。后续如迁移 OpenXR，应另开分支验证，不与 Oculus 配置混用。
 
 - 短期继续使用 Oculus Loader，清理无用 OpenXR 残留；或
 - 在独立分支迁移 OpenXR，统一 loader、输入、材质和设备测试。
@@ -377,3 +377,31 @@ Unity.exe -batchmode -projectPath <project> -buildTarget Android -quit -logFile 
 ## 13. 交叉复核后的补充修复
 
 已恢复实际使用的贴图、补齐 Equipment 阴影、完善字体场景重绑、区分项目选择与显式重置、限制收集顺序、修复垃圾桶恢复与抓取快照、按材质槽处理高亮，并将 PlayMode 测试改为强制重载和脏状态验收。新增实现细节见 [OPTIMIZATION_IMPLEMENTATION.md](OPTIMIZATION_IMPLEMENTATION.md)。
+
+## 14. P0 实施结果
+
+已修正 Equipment 片元阴影变量、迁移当前木材材质到 URP、将氧气改为按实验批次初始化、清除垃圾桶器材的归位评分，并加入编辑器自动中文字体修复。新增同项目重新选择和垃圾桶评分 PlayMode 回归测试。实际 Unity 编译、字体生成、Shader 验证和测试运行仍需在 Unity 中执行。
+
+## 15. P1 架构与模型实施结果
+
+已加入唯一旧状态适配器、XRI 实际选择恢复和共享材质状态管理。已用 Blender 真实生成 `a.fbx`、洗手盆、试管架的 LOD 与凸包代理，并提供 Unity 内按名称接入 LODGroup 的工具。统计和接入步骤见 [MODEL_OPTIMIZATION_GUIDE.md](MODEL_OPTIMIZATION_GUIDE.md)。Unity 编译、LOD 切换、XRI 选择和测试运行仍需验证。
+
+## 16. P2 性能与发布实施结果
+
+已加入事件驱动计分、注册表缓存、液位更新节流、性能 JSON 采样、项目验证、CI、签名构建检查和构建信息输出。已清理 OpenXR 残留与未使用 ARFoundation，Quest Multiview/Subsampled 已配置但需真机验证。另已补充液体 cap、教学 UI 集合复用和氧气文本限频。详见 [P2_PERFORMANCE_RELEASE.md](P2_PERFORMANCE_RELEASE.md)。
+
+## 17. 全面性能优化实施结果
+
+已加入 Capsule 物理代理、LOD3 与 Quest 近景 LOD2 切换、cap 材质共享、cap/高亮/Wobble 更新节流、QuestLow、Android 材质分级、纹理预算和 UnityStats 性能统计。Android 构建预处理临时剔除原始高模和 LOD1，并在构建后恢复 Editor 引用。五轮检查 240 项通过，模拟检查 350 项通过。详见 [PERFORMANCE_IMPLEMENTATION.md](PERFORMANCE_IMPLEMENTATION.md)。
+
+## 18. 阶段 1：化学核心
+
+已建立纯 C# 的 `VRChemistry.Chemistry.Core`，用物质、混合物、反应条件和反应结果替代单一实验中的化学硬编码。制氧、复燃和中和资产已建立，并通过 `ChemistryLegacyAdapter` 接入现有流程。
+
+复核修复了反应资产 PascalCase 字段、下层单位常量循环依赖、重复物质汇总、非法数值、负温度、空参与者、浓度更新和气泡/气路同步问题。当前为 37 个 EditMode + 11 个 PlayMode 测试，五轮检查 240 项、流程模拟 350 项、化学模拟 79 项通过。详见 [CHEMISTRY_CORE_GUIDE.md](CHEMISTRY_CORE_GUIDE.md)。
+
+## 19. 阶段 1 深化：反应过程与混合物提交
+
+新增 `ReactionProcess`，明确区分纯化学求值和按时间提交，支持暂停、恢复、完成幂等、失败不部分提交、取消和快照重置。`MixtureState` 增加 `GasComponents`、`SolidComponents`、`CanConsume`、`CanAddProduct`、`Clone/CopyFrom`，生成的氧气可以继续参与复燃。
+
+新增 12 个反应过程测试和 39 项过程模拟检查，最终为 37 个 EditMode + 11 个 PlayMode 测试，五轮检查 240 项、流程模拟 350 项、化学模拟 79 项通过。另修复精确尾段、实际反应时间、相对浮点容差、实际消耗核对和多产物溢出回滚。

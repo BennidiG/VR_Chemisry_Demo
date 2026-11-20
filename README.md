@@ -40,6 +40,6 @@
 3. 验证火柴丢弃/重建、实验切换、器材移出、双 O2 碰撞体边缘移动、烧尽、氧气耗尽和重复重置。
 4. 使用 Android、ARM64、IL2CPP 构建 APK，并在 Quest 2 上验证移动、射线、抓取、Socket、VFX 与中文 UI。
 
-详细的本次修复清单、验证边界、真机测试清单和后续开发路线见 [PROJECT_REVIEW.md](PROJECT_REVIEW.md)。实验资产、教学模式、中英文切换、无头显调试按键和 EditMode 测试见 [FRAMEWORK_GUIDE.md](FRAMEWORK_GUIDE.md)。新增的 URP 玻璃、液体、器材与气泡材质及调参说明见 [MATERIALS_GUIDE.md](MATERIALS_GUIDE.md)。覆盖代码架构、编译、测试、化学流程、材质模型、性能与资源发布的全面优化路线见 [OPTIMIZATION_REVIEW.md](OPTIMIZATION_REVIEW.md)。三阶段实施结果和 Unity 内待执行步骤见 [OPTIMIZATION_IMPLEMENTATION.md](OPTIMIZATION_IMPLEMENTATION.md)。
+详细的本次修复清单、验证边界、真机测试清单和后续开发路线见 [PROJECT_REVIEW.md](PROJECT_REVIEW.md)。实验资产、教学模式、中英文切换、无头显调试按键和 EditMode 测试见 [FRAMEWORK_GUIDE.md](FRAMEWORK_GUIDE.md)。新增的 URP 玻璃、液体、器材与气泡材质及调参说明见 [MATERIALS_GUIDE.md](MATERIALS_GUIDE.md)。覆盖代码架构、编译、测试、化学流程、材质模型、性能与资源发布的全面优化路线见 [OPTIMIZATION_REVIEW.md](OPTIMIZATION_REVIEW.md)。三阶段实施结果和 Unity 内待执行步骤见 [OPTIMIZATION_IMPLEMENTATION.md](OPTIMIZATION_IMPLEMENTATION.md)。P1 的真实模型减面、LOD 接入和凸包代理见 [MODEL_OPTIMIZATION_GUIDE.md](MODEL_OPTIMIZATION_GUIDE.md)。无 Unity 环境下的 P0/P1 模拟验收结果见 [SIMULATION_REPORT.md](SIMULATION_REPORT.md)。P2 的性能采样、项目验证、CI 和发布步骤见 [P2_PERFORMANCE_RELEASE.md](P2_PERFORMANCE_RELEASE.md)。五轮全场景检查与修复记录见 [FULL_SCENE_CHECK.md](FULL_SCENE_CHECK.md)。最新全面性能优化见 [PERFORMANCE_IMPLEMENTATION.md](PERFORMANCE_IMPLEMENTATION.md)。模拟实测与几何检查报告见 [SIMULATED_RUNTIME_TEST.md](SIMULATED_RUNTIME_TEST.md)。阶段 1 化学核心、反应资产与兼容迁移见 [CHEMISTRY_CORE_GUIDE.md](CHEMISTRY_CORE_GUIDE.md)。
 
 > 当前审查环境没有 Unity 编辑器和 Quest 设备，因此已完成静态检查，但未宣称 Unity 编译、Play Mode 或真机测试通过。

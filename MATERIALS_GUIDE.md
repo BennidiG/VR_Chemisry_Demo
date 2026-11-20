@@ -13,7 +13,7 @@
 | `LabEquipment.shader` | 不透明器材材质，主光漫反射、高光、Metallic/Smoothness 和自发光。 |
 | `LabBubble.shader` | 透明气泡粒子，支持贴图、Tint 和顶点色。 |
 
-实现均使用 `Core.hlsl` 与 `Lighting.hlsl`，不包含 URP 10.8.1 不存在的 `Unlit.hlsl`。`LabEquipment` 另含 `ShadowCaster` Pass，并在 Forward 中采样主光阴影，支持投影和接影。
+实现均使用 `Core.hlsl` 与 `Lighting.hlsl`，不包含 URP 10.8.1 不存在的 `Unlit.hlsl`。`LabEquipment` 另含 `ShadowCaster` Pass，并在 Forward 中采样主光阴影，支持投影和接影。`Stick.mat` 与 `Wood_2/3/4.mat` 已迁移到该 URP 器材 Shader，保留原贴图并使用 `_BaseColor/_EmissionColor` 兼容教学高亮。
 
 ## 2. 材质与场景接入
 
@@ -51,7 +51,7 @@ surfaceHeight = originWorldY + lerp(_MinHeight, _MaxHeight, _FillAmount)
 - 水：`_FillAmount=0.65`。
 - 酒精：`_FillAmount=0.55`。
 
-如果液面过高、过低或整个液体被裁掉，优先检查该对象的 `LabLiquidVolume` 与包围盒，再调整高度覆盖或填充值。液体只裁剪已有网格，不自动生成任意高度的截面封盖；需要完整封顶的模型应保留/配置独立液面网格。
+如果液面过高、过低或整个液体被裁掉，优先检查该对象的 `LabLiquidVolume` 与包围盒，再调整高度覆盖或填充值。液体主体启用 `LabLiquidCap` 时，会在运行时按当前液位生成水平表面；cap 位于裁剪面下方 0.2 mm，避免被液面 `bodyMask` 裁掉，并同步 Wobble。cap 使用独立网格，随 Renderer/LOD 可见性显示或隐藏，不参与器材高亮。已有 `LiquidLevel` 的对象不会重复生成 cap。液体只裁剪已有网格，cap 也不能自动修复任意复杂瓶口的几何穿插，需要完整瓶口的模型应保留独立液面网格。
 
 ## 4. 玻璃与器材调参
 
@@ -81,7 +81,7 @@ surfaceHeight = originWorldY + lerp(_MinHeight, _MaxHeight, _FillAmount)
 - 保留原 High 配置，新增独立 Quest 配置；没有直接改写原 High 的 URP、分辨率、MSAA 或阴影参数。
 - 透明玻璃和液体仍会产生 overdraw；在 Quest 上应避免大量重叠器皿同时占据屏幕。前后面不做逐三角形排序，复杂网格需检查自身透明穿插。
 - 教学高亮只改变颜色/自发光，保留玻璃和液体的原始 alpha，不会因高亮变得不透明；自定义 Lab Shader 支持自发光脉冲，URP Lit 材质以基色脉冲为主。
-- 持久液位使用每个对象缓存的材质实例，避免动态属性块覆盖；Wobble 和短时高亮使用 MaterialPropertyBlock。MaterialPropertyBlock 会使对应对象退出 Unity 2020.3 的 SRP Batcher，净收益需用 Frame Debugger/Profiler 验证。
+- 持久液位使用每个对象缓存的材质实例，避免动态属性块覆盖；cap 材质按液体源共享并引用计数，避免 LOD 创建重复 cap 材质。Wobble、溶解和短时高亮通过 `LabMaterialState` 按 Renderer/材质槽共享状态。取消高亮只恢复颜色字段，不整块回滚其他效果。MaterialPropertyBlock 会使对应对象退出 Unity 2020.3 的 SRP Batcher，净收益需用 Frame Debugger/Profiler 验证。
 - 法线和贴图较完整的实验台继续使用 URP Lit，以免简化 shader 破坏原有表面细节。
 
 建议先在 Unity Editor 中检查透明排序、液面位置、材质高亮恢复和气泡显示，再在 Quest 上记录 CPU/GPU 帧时间。若性能不足，优先减少透明层数、实时灯和阴影，而不是先增加更复杂的光照效果。

@@ -91,7 +91,7 @@ Shader "VRChemistry/Lab Equipment"
                 float3 albedo = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).rgb * _BaseColor.rgb;
                 float3 normalWS = normalize(input.normalWS);
                 float3 viewDirWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
-                Light mainLight = GetMainLight(output.shadowCoord);
+                Light mainLight = GetMainLight(input.shadowCoord);
                 float3 lightDir = mainLight.direction;
                 float3 lightColor = mainLight.color * mainLight.shadowAttenuation;
 

@@ -1,0 +1,145 @@
+[
+  {
+    "source": "a.fbx",
+    "output": "Assets\\Modle\\Optimized\\a_LOD1.fbx",
+    "ratio": 0.45,
+    "before": [
+      380512,
+      753292
+    ],
+    "after": [
+      170914,
+      338097
+    ]
+  },
+  {
+    "source": "a.fbx",
+    "output": "Assets\\Modle\\Optimized\\a_LOD2.fbx",
+    "ratio": 0.2,
+    "before": [
+      380512,
+      753292
+    ],
+    "after": [
+      76566,
+      150211
+    ]
+  },
+  {
+    "source": "a.fbx",
+    "output": "Assets\\Modle\\Optimized\\a_LOD3.fbx",
+    "ratio": 0.08,
+    "before": [
+      380512,
+      753292
+    ],
+    "after": [
+      31306,
+      60460
+    ]
+  },
+  {
+    "source": "18中式陶瓷洗手盆.fbx",
+    "output": "Assets\\Modle\\Optimized\\basin_LOD1.fbx",
+    "ratio": 0.5,
+    "before": [
+      157184,
+      78336
+    ],
+    "after": [
+      22164,
+      39166
+    ]
+  },
+  {
+    "source": "18中式陶瓷洗手盆.fbx",
+    "output": "Assets\\Modle\\Optimized\\basin_LOD2.fbx",
+    "ratio": 0.25,
+    "before": [
+      157184,
+      78336
+    ],
+    "after": [
+      12366,
+      19575
+    ]
+  },
+  {
+    "source": "18中式陶瓷洗手盆.fbx",
+    "output": "Assets\\Modle\\Optimized\\basin_LOD3.fbx",
+    "ratio": 0.12,
+    "before": [
+      157184,
+      78336
+    ],
+    "after": [
+      6786,
+      9384
+    ]
+  },
+  {
+    "source": "TestTubeRack.fbx",
+    "output": "Assets\\Modle\\Optimized\\rack_LOD1.fbx",
+    "ratio": 0.5,
+    "before": [
+      12988,
+      25956
+    ],
+    "after": [
+      6499,
+      12978
+    ]
+  },
+  {
+    "source": "TestTubeRack.fbx",
+    "output": "Assets\\Modle\\Optimized\\rack_LOD2.fbx",
+    "ratio": 0.25,
+    "before": [
+      12988,
+      25956
+    ],
+    "after": [
+      3252,
+      6484
+    ]
+  },
+  {
+    "source": "TestTubeRack.fbx",
+    "output": "Assets\\Modle\\Optimized\\rack_LOD3.fbx",
+    "ratio": 0.12,
+    "before": [
+      12988,
+      25956
+    ],
+    "after": [
+      1566,
+      3112
+    ]
+  },
+  {
+    "source": "a.fbx",
+    "output": "Assets\\Modle\\Optimized\\a_PROXY.fbx",
+    "proxy": "convex_hull",
+    "before": [
+      380512,
+      753292
+    ],
+    "after": [
+      6839,
+      12944
+    ]
+  },
+  {
+    "source": "TestTubeRack.fbx",
+    "output": "Assets\\Modle\\Optimized\\rack_PROXY.fbx",
+    "proxy": "convex_hull",
+    "before": [
+      12988,
+      25956
+    ],
+    "after": [
+      892,
+      1668
+    ]
+  }
+]

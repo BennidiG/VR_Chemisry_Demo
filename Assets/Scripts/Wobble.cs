@@ -3,7 +3,6 @@ using UnityEngine;
 public class Wobble : MonoBehaviour
 {
     private Renderer rend;
-    private MaterialPropertyBlock wobbleProperties;
     private Vector3 lastPos;
     private Vector3 velocity;
     private Vector3 lastRot;
@@ -19,18 +18,27 @@ public class Wobble : MonoBehaviour
     private float wobbleAmountToAddZ;
     private float pulse;
     private float time = 0.5f;
+    private float nextWobbleUpdate;
+    private float accumulatedDeltaTime;
+    private bool hasWobble;
+
+    public Vector2 CurrentWobble => new Vector2(wobbleAmountX, wobbleAmountZ);
 
     void Start()
     {
         rend = GetComponent<Renderer>();
-        wobbleProperties = new MaterialPropertyBlock();
         lastPos = transform.position;
         lastRot = transform.rotation.eulerAngles;
     }
 
     private void Update()
     {
-        float deltaTime = Time.deltaTime;
+        accumulatedDeltaTime += Time.deltaTime;
+        if (Time.unscaledTime < nextWobbleUpdate)
+            return;
+        nextWobbleUpdate = Time.unscaledTime + 1F / 30F;
+        float deltaTime = accumulatedDeltaTime;
+        accumulatedDeltaTime = 0F;
         if (deltaTime <= 0F)
             return;
 
@@ -42,10 +50,19 @@ public class Wobble : MonoBehaviour
         wobbleAmountX = wobbleAmountToAddX * Mathf.Sin(pulse * time);
         wobbleAmountZ = wobbleAmountToAddZ * Mathf.Sin(pulse * time);
 
-        rend.GetPropertyBlock(wobbleProperties);
-        wobbleProperties.SetFloat("_WobbleX", wobbleAmountX);
-        wobbleProperties.SetFloat("_WobbleZ", wobbleAmountZ);
-        rend.SetPropertyBlock(wobbleProperties);
+        if (Mathf.Abs(wobbleAmountX) + Mathf.Abs(wobbleAmountZ) < 0.0001F)
+        {
+            if (hasWobble)
+            {
+                LabMaterialState.SetWobble(rend, 0F, 0F);
+                hasWobble = false;
+            }
+        }
+        else
+        {
+            LabMaterialState.SetWobble(rend, wobbleAmountX, wobbleAmountZ);
+            hasWobble = true;
+        }
 
         velocity = (lastPos - transform.position) / deltaTime;
         Vector3 currentRot = transform.rotation.eulerAngles;
@@ -59,5 +76,10 @@ public class Wobble : MonoBehaviour
 
         lastPos = transform.position;
         lastRot = currentRot;
+    }
+
+    private void OnDestroy()
+    {
+        LabMaterialState.ClearRenderer(rend);
     }
 }

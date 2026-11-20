@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000018ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: mno2
+  displayName: Manganese dioxide
+  formula: MnO2
+  molarMass: 86.94
+  state: 0
+  hazard: 1
+  description: Dark powder used as a catalyst for this demonstration.
+  displayColor: {r: 0.15, g: 0.15, b: 0.15, a: 1}

@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000019ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  reactionId: neutralization
+  displayName: Acid-base neutralization
+  equation: HCl + NaOH -> NaCl + H2O
+  reactants:
+- SubstanceId: hcl
+  Coefficient: 1
+  Role: 0
+  Phase: 3
+
+- SubstanceId: naoh
+  Coefficient: 1
+  Role: 0
+  Phase: 3
+
+  products:
+- SubstanceId: nacl
+  Coefficient: 1
+  Role: 1
+  Phase: 3
+
+- SubstanceId: h2o
+  Coefficient: 1
+  Role: 1
+  Phase: 1
+
+  conditions:
+    MinimumTemperatureC: 0
+    CatalystSubstanceId: 
+    RequiresIgnition: 0
+    RequiresHotEmber: 0
+    RequiresOxygen: 0
+    RequiresMixing: 1
+    MinimumMixing: 0.25
+    RequiresWater: 0
+    RequiresElectrolysis: 0
+    RequiresGasCollection: 0
+  progressPerSecond: 0.25
+  exothermic: 1
+  safetyNote: Use dilute solutions and avoid splashes. This validates future neutral reaction content.

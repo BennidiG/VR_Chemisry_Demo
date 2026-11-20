@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba1d1234567890abcdef0000000019ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  reactionId: make_oxygen
+  displayName: Oxygen from potassium chlorate
+  equation: 2KClO3 -> 2KCl + 3O2
+  reactants:
+- SubstanceId: kclo3
+  Coefficient: 2
+  Role: 0
+  Phase: 0
+
+- SubstanceId: mno2
+  Coefficient: 1
+  Role: 2
+  Phase: 0
+
+  products:
+- SubstanceId: kcl
+  Coefficient: 2
+  Role: 1
+  Phase: 0
+
+- SubstanceId: o2
+  Coefficient: 3
+  Role: 1
+  Phase: 2
+
+  conditions:
+    MinimumTemperatureC: 200
+    CatalystSubstanceId: mno2
+    RequiresIgnition: 0
+    RequiresHotEmber: 0
+    RequiresOxygen: 0
+    RequiresMixing: 0
+    MinimumMixing: 0.25
+    RequiresWater: 0
+    RequiresElectrolysis: 0
+    RequiresGasCollection: 1
+  progressPerSecond: 0.4
+  exothermic: 0
+  safetyNote: KClO3 and MnO2 are oxidizing powders. Avoid contamination and uncontrolled ignition.

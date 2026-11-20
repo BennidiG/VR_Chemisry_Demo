@@ -22,9 +22,11 @@ public class LaboratoryLayoutController : MonoBehaviour, ILaboratoryResettable
     }
 
     private readonly List<ItemSnapshot> snapshots = new List<ItemSnapshot>();
+    private XRInteractionManager interactionManager;
 
     private void Awake()
     {
+        interactionManager = FindObjectOfType<XRInteractionManager>();
         ExperimentRunner.LaboratoryResetHandler = this;
         foreach (LabItem item in Resources.FindObjectsOfTypeAll<LabItem>())
         {
@@ -97,6 +99,7 @@ public class LaboratoryLayoutController : MonoBehaviour, ILaboratoryResettable
 
             snapshot.item.SetHighlight(null);
             XRGrabInteractable grab = snapshot.item.GetComponent<XRGrabInteractable>();
+            ExitXrSelection(grab);
             if (grab != null)
                 grab.enabled = false;
 
@@ -123,4 +126,20 @@ public class LaboratoryLayoutController : MonoBehaviour, ILaboratoryResettable
         if (score != null)
             score.Nope_Mistake_AlcoholLamp();
     }
+
+    private void ExitXrSelection(XRGrabInteractable grab)
+    {
+        if (grab == null)
+            return;
+
+        XRInteractionManager manager = grab.interactionManager != null ? grab.interactionManager : interactionManager;
+        if (manager == null)
+            return;
+
+        for (int index = grab.interactorsSelecting.Count - 1; index >= 0; index--)
+            manager.SelectExit(grab.interactorsSelecting[index], grab);
+        for (int index = grab.interactorsHovering.Count - 1; index >= 0; index--)
+            manager.HoverExit(grab.interactorsHovering[index], grab);
+    }
 }
+
